@@ -30,6 +30,12 @@ Inputs
 ******
 
 #. Module safety case
+#. Platform safety case
+#. Issue tracking system
+#. Platform Management Plan
+
+Outputs
+*******
 #. Module release plan
 #. Module release note
 #. Platform release plan
@@ -39,7 +45,8 @@ Platform Release Plan
 =====================
 
 The platform release plan provides a reliable plan on what software modules can be expected in the
-upcoming platform release. Therefore it is of importance that the *Project Leads* are aligned with
+upcoming platform release. The platform release plan is reflected by feature requests which are
+demanded. Therefore it is of importance that the *Project Leads* are aligned with
 the various software module *Technical Leads* and *Project Leads* to align the platform release
 plan properly with the module release plan as the platform release plan has a clear dependency on
 its output.
@@ -102,3 +109,17 @@ Only released software modules can be included into a platform release.
 
    * Aligns software module release timing schedule
    * Adds and removes Software modules to the Platform
+
+Branching Strategy
+==================
+
+Branches:
+* main: Stable, production-ready code.
+* release/\*: Branches for distinct releases, named release/<version-number>.
+
+
+Workflow:
+
+When ready for a new release, create a branch release/<version-number> from main.
+Perform final testing and adjustments on the release branch.
+Tag the release in the release branch.

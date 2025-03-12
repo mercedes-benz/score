@@ -19,6 +19,8 @@ Guideline
    :id: gd_guidl__rel_management
    :status: draft
 
+.. _workflow_release:
+
 Software Module Release
 -----------------------
 
@@ -38,6 +40,7 @@ Software Module Release
    * Follow the development guidelines and coding standards.
    * Conduct thorough testing, including unit tests, integration tests, and system tests.
    * Ensure that all tests pass before proceeding to the release.
+   * In case of failed test, evaluate and possibly justify their continued existence.
 
 4. **Release Preparation**:
 
@@ -50,7 +53,7 @@ Software Module Release
 
    * Push the release to the main branch.
    * Create a release in the GitHub repository and attach the release notes.
-   * Notify the platform release manager about the release.
+   * Notify the tech lead circle about the release.
 
 
 Platform Release
@@ -58,7 +61,7 @@ Platform Release
 
 1. **Integration of Software Modules**:
 
-   * The platform release in the integrates various software modules.
+   * The platform release integrates various software modules.
    * Ensure that all software modules are released and tagged before the platform release.
 
 2. **Platform Release Planning**:
@@ -83,8 +86,60 @@ Platform Release
 
    * Push the platform release to the main branch.
    * Create a release in the GitHub repository and attach the platform release notes.
-   * Communicate the platform release to all stakeholders.
+   * Publish within Eclipse SDV
 
+Release Versioning Rules
+------------------------
+
+1. Semantic Versioning Format
+
+   Use the format MAJOR.MINOR.PATCH for version numbers.
+
+
+2. Version Components
+
+   * MAJOR: Incremented for incompatible API changes.
+   * MINOR: Incremented for backward-compatible functionality additions.
+   * PATCH: Incremented for backward-compatible bug fixes.
+
+3. Rules for Incrementing Versions
+
+   * Major Version (MAJOR)
+
+      Increment the MAJOR version when making changes that break backward compatibility.
+
+      Examples:
+
+      * Removing or renaming public APIs.
+      * Significant changes to the architecture that require modifications from dependent modules.
+
+   * Minor Version (MINOR)
+
+      Increment the MINOR version when adding new features or functionality in a backward-compatible manner.
+
+      Examples:
+
+      * Adding new APIs or modules.
+      * Enhancements to existing features that do not affect existing functionality.
+
+   * Patch Version (PATCH)
+
+      Increment the PATCH version when making backward-compatible bug fixes.
+
+      Examples:
+
+      * Fixing bugs or issues in the existing code.
+      * Minor improvements that do not add new features or change existing ones.
+
+4. Pre-Release Versions
+
+   * Use pre-release versions for features or fixes that are not yet ready for production.
+   * Format: MAJOR.MINOR.PATCH-<pre-release-tag>, e.g., 1.0.0-alpha, 1.0.0-beta.
+
+5. Tagging Releases
+
+   * Tag each release in the repository with the version number.
+   * Format: vMAJOR.MINOR.PATCH, e.g., v1.3.0.
 
 Tracking and Communication
 ---------------------------
@@ -97,7 +152,7 @@ Tracking and Communication
 2. **Communication**:
 
    * Regularly update all stakeholders on the release status.
-   * Hold periodic meetings to discuss progress, issues, and dependencies.
+   * Hold periodic meetings to discuss progress, issues, and dependencies within the tech lead circle.
    * Ensure clear and transparent communication throughout the release process.
 
 

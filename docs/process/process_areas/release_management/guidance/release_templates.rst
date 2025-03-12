@@ -22,7 +22,8 @@ Templates
 
    |  Platform Release Notes
    |  ======================
-   |  Version: vX.Y.Z
+   |  Release Tag: vX.Y.Z
+   |  Release Commit Hash: a1b2c3d4e5f6g7h8i9j0
    |  Release Date: YYYY-MM-DD
    |
    |  Overview
@@ -49,15 +50,15 @@ Templates
    |
    |  Integrated Software Modules
    |  ---------------------------
-   |  - **Module 1**: Version and brief description of the module.
-   |  - **Module 2**: Version and brief description of the module.
-   |  - **Module 3**: Version and brief description of the module.
+   |  - **Module 1**: Version and brief description of the module. Link to Software module release note.
+   |  - **Module 2**: Version and brief description of the module. Link to Software module release note.
+   |  - **Module 3**: Version and brief description of the module. Link to Software module release note.
    |
    |  Known Issues
    |  ------------
-   |  - **Issue 1**: Brief description of the known issue.
-   |  - **Issue 2**: Brief description of the known issue.
-   |  - **Issue 3**: Brief description of the known issue.
+   |  - **Issue 1**: Brief description of the known issue. Justification regarding safety impact.
+   |  - **Issue 2**: Brief description of the known issue. Justification regarding safety impact.
+   |  - **Issue 3**: Brief description of the known issue. Justification regarding safety impact.
    |
    |  Upgrade Instructions
    |  --------------------
@@ -80,7 +81,8 @@ Templates
    | =============================
    |
    | Module Name: [Module Name]
-   | Version: vX.Y.Z
+   | Release Tag: vX.Y.Z
+   | Release Commit Hash: a1b2c3d4e5f6g7h8i9j0
    | Release Date: YYYY-MM-DD
    |
    | Overview
@@ -117,9 +119,9 @@ Templates
    | Known Issues
    | ------------
    |
-   | - **Issue 1**: Brief description of the known issue.
-   | - **Issue 2**: Brief description of the known issue.
-   | - **Issue 3**: Brief description of the known issue.
+   | - **Issue 1**: Brief description of the known issue. Justification regarding safety impact.
+   | - **Issue 2**: Brief description of the known issue. Justification regarding safety impact.
+   | - **Issue 3**: Brief description of the known issue. Justification regarding safety impact.
    |
    | Upgrade Instructions
    | --------------------

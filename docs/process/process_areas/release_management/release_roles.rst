@@ -24,3 +24,5 @@ Contributing Roles:
 
 A detailed overview of the responsibility for the steps of the Release Management process
 is listed here:
+
+:ref:`workflow_release`
