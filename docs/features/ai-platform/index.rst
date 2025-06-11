@@ -41,7 +41,8 @@ The primary goal is to provide support for ASIL-B compliant use cases on QNX thr
 vendor-agnostic abstraction layer for AI backends such as TensorRT or QNN.
 For non-safety-critical applications, a standardized inference backend—such as ONNX Runtime—should be supported,
 despite its current lack of compatibility with QNX.
-Additionally, Generative AI (GenAI) related components shall be provided for Linux based systems.
+Generative AI (GenAI) workloads are a core part of the platform scope on Linux,
+enabling on-device LLM inference for intelligent in-vehicle interactions.
 
 The document proposes extending S-CORE components (e.g., FEO, Communication, Error Handling)
 to support AI models natively, avoiding duplicate logic across software domains.
@@ -114,12 +115,13 @@ However, ONNX Runtime currently lacks QNX support - which will further be invest
 Concept
 -------
 
-The diagram below illustrates the architecture of the AIP Sandbox.
+The diagram below illustrates the architecture of the AIP Abstraction Layer - here called ModelAPI.
 It highlights how a unified Adapter Interface allows seamless integration with different hardware-dependent inference backends
 (e.g., ONNX Runtime, TensorRT), as well as a mock backend for testing.
 The IOUtils module handles preprocessing and input preparation.
 Keeping IOUtils as a separate library helps isolate input handling logic from inference logic,
 making it easier to test, reuse, and extend preprocessing across different models and backends.
+This structure allows isolating and certifying components independently, which is essential for scalable safety certification.
 
 
 .. uml::
@@ -158,12 +160,10 @@ making it easier to test, reuse, and extend preprocessing across different model
 
 Key benefits of this concept include:
 
-- Static backend selection at compile time ensures deterministic behavior and reduces runtime complexity.
-- Clear separation of responsibilities (e.g., IOUtils vs inference adapters) supports modular safety analysis.
-- MockAdapter enables early testing and CI validation without requiring hardware targets.
-- Minimal and auditable abstractions make the system easier to verify and validate, especially when wrapping certified inference engines such as TensorRT (when used as a Safety Element out of Context, SEooC).
-
-This structure allows isolating and certifying components independently, which is essential for scalable safety certification.
+- Static backend selection at compile time ensures deterministic behavior and reduces runtime complexity
+- Clear separation of responsibilities (e.g., IOUtils vs inference adapters) supports modular safety analysis
+- MockAdapter enables early testing and CI validation without requiring hardware targets
+- Minimal and auditable abstractions make the system easier to verify and validate, especially when wrapping certified inference engines (when used as a Safety Element out of Context, SEooC)
 
 
 Adapter Class
@@ -171,6 +171,8 @@ Adapter Class
 
 The class diagram below shows the object-oriented structure of the Adapter system.
 All backend adapters inherit from a shared abstract interface, ensuring consistent model loading and inference APIs across implementations.
+One of the main challenges of this approach is to find the common set of features between all backend APIs to be abstracted.
+Finding the right balance between abstraction and feature set may be challenging.
 
 
 .. uml::
@@ -207,6 +209,7 @@ Backend Selection Mechanism
 
 The following diagram shows how the backend implementation is selected at compile time via CMake flags.
 Depending on the configuration, either the ONNX Runtime, TensorRT, or a mock adapter is compiled into the application.
+The static backend selection at compile time ensures deterministic behavior and reduces runtime complexity which simplifies certification.
 
 
 .. uml::
@@ -228,49 +231,183 @@ Depending on the configuration, either the ONNX Runtime, TensorRT, or a mock ada
 Data Pipelining and GPU Communication Abstraction
 _________________________________________________
 
-Many models—especially vision-based ones—depend on high-throughput data exchange with GPU memory.
-To support efficient data flow, the architecture should provide a data pipelining layer that abstracts GPU-resident communication objects.
+Many models — especially vision-based ones — depend on high-throughput data exchange in GPU memory.
+To support efficient data flow, the architecture should provide a data pipelining layer that abstracts objects in the GPU memory space.
+
 This may include:
 
-- Shared memory buffers between producer (e.g., camera capture) and consumer (e.g., model runner)
-- Zero-copy mechanisms to minimize CPU-GPU transfers
+- Shared memory buffers between producer (e.g. camera driver) and consumer (e.g. model preprocessing)
+- Zero-copy mechanisms to minimize CPU-GPU transfers and reduce latency
 - Standardized data contracts for tensor formats and metadata
 
-A key challenge here is observability: current S-CORE recording and instrumentation may not capture GPU-to-GPU data flows.
-The architecture should address this gap by introducing pipeline tap points or mirrors to enable debugging and traceability.
+A key challenge here is observability: current S-CORE recording may not capture GPU-to-GPU data flows.
 A second challenge is the tight coupling of GPU memory object to vendor specific libraries.
+Therefore, the exact scope and feasibilty of this component and its respective gaps must be investigated in-depth by a future feature request.
 
-Therefore, the exact scope and feasibilty of this component must be investigated in-depth by a future feature request.
-
+The figure below shows the high level concept of a data pipeline and backend adapter.
 
 .. image:: _assets/score-aip-abstraction.drawio.svg
    :alt: AI Platform Abstraction
 
 
-S-CORE Integration: FEO, Communication, and Error Handling
-__________________________________________________________
+S-CORE Integration: FEO, Communication, and Fault Management
+____________________________________________________________
 
-AI model execution should be integrated into existing S-CORE components—not implemented as a standalone subsystem.
+AI model execution should be integrated into existing S-CORE components — not implemented as a standalone subsystem.
+
 This includes:
 
-- FEO: Integration allows AI tasks to be scheduled and monitored like any other software component.
-- Communication: Model inputs and outputs must seamlessly fit into the existing communication model.
-- Error Handling: Faults and anomalies during inference (e.g., invalid input tensors, timeout, memory access issues) must be reported and handled using S-CORE’s diagnostics framework.
-- Recording: Data between AI/ML nodes with GPU memory object should be recordable in the same manner as regular IPC communication.
+- FEO: Integration allows AI tasks to be scheduled and monitored like any other activity
+- Communication: Model inputs and outputs must seamlessly fit into the existing communication model
+- Error Handling: Faults and anomalies during inference (e.g., invalid input tensors, timeout, memory access issues) must be reported and handled using S-CORE's diagnostic framework
+- Recording: Data between AI/ML nodes with GPU memory object should be recordable in the same manner as regular IPC communication
 
 This unified approach avoids fragmentation and ensures that AI models are treated as first-class citizens within the system.
 
 GenAI
 _____
 
-The figure below shows an intial scope of components to be considered as part of the GenAI toolkit.
+This section defines the platform's support for Generative AI (GenAI), with a focus on enabling on-device inference
+using large language models (LLMs) for interactions in the vehicle context.
 
-.. image:: _assets/score-aip-genai-overview.drawio.svg
-   :alt: AI Platform GenAI
+In addition to standard prompt-response interaction, the scope includes support for agentic capabilities — enabling
+LLM-based agents that operate with situational awareness, memory, goal orientation, and structured communication with vehicle systems.
+
+
+Scope Overview
+--------------
+
+The platform shall support Generative AI inference on Linux targets for non-safety-critical use cases,
+enabling contextual in-vehicle assistance and edge-based large language model (LLM) execution.
+The focus is on enabling model execution, streamlined integration with in-vehicle communication systems and flexible data injection via APIs.
+
+Key Goals:
+
+- Enable on-device LLM inference using runtimes such as llama.cpp
+- Define a Context API that allows the injection of relevant task context, session memory, driver preferences, and environmental factors into the LLM
+- Provide an MCP Server that exposes vehicle states and control interfaces to the LLM in a structured, machine-readable format, enabling real-time interaction with in-vehicle systems
+
+The table below gives a brief overview of considered components and their respective function.
+
++---------------------------+----------------------------------------------------------------------------+
+| **Component**             | **Description**                                                            |
++===========================+============================================================================+
+| Runtime                   | Runtime support for lightweight LLMs (e.g. llama.cpp)                      |
++---------------------------+----------------------------------------------------------------------------+
+| Prompting Interface       | Manages prompt templates, roles, chaining, and streaming I/O               |
++---------------------------+----------------------------------------------------------------------------+
+| Context API               | Overarching interface to manage agent memory, goals, session state         |
++---------------------------+----------------------------------------------------------------------------+
+| MCP Server                | Provides structured vehicle context and controls                           |
++---------------------------+----------------------------------------------------------------------------+
+| Action Validator          | Safety layer to validate LLM-generated actions before execution            |
++---------------------------+----------------------------------------------------------------------------+
+
+
+The figure below outlines the core data and control flow connections between components in the GenAI Subsystem.
+
+.. image:: _assets/score-aip-genai.drawio.svg
+   :alt: AI Platform GenAI Subsystem
+
+Basic data/control flow explanation:
+
+- The Prompting Interface sends a fully constructed prompt — containing system messages, user input, and injected context — to the LLM for inference. This serves as the main entry point for user interaction and model execution.
+- The Prompting Interface also monitors the token stream returned by the LLM, buffering output for speech or display and detecting structured outputs such as function calls or action proposals. When an action is detected, it is passed to the Action Validator for policy enforcement.
+- The Prompting Interface retrieves relevant context from the Context API. This includes session memory, task goals, and personalization data that shape how prompts are built and responses are interpreted.
+- The Context API aggregates internal state and preferences and consumes structured, real-time vehicle data from the MCP Server. This includes signals such as current speed, destination, or climate status, provided as typed resources.
+- The MCP Server acts as a proxy between the GenAI subsystem and the vehicle platform. It reads sensor and state data from the Vehicle API and exposes tools (i.e., callable functions) for executing commands like HVAC control.
+- When the Action Validator approves a proposed action, the corresponding MCP tool is triggered. The MCP Server then sends the command to the Vehicle API for execution by the vehicle systems.
+
+Runtime
+-------
+
+The platform shall support model runtimes like llama.cpp for model execution.
+It is **not** a goal to provide a proprietary runtime.
+
+
+Context API
+--------------
+
+The Context API is a conceptual umbrella for providing LLMs with both real-world state (via MCP) and session/task context (via in-memory or config-based injection).
+It serves as a unified interface that aggregates all information relevant to the LLM's/agent's decision-making and interaction behavior.
+
+It is composed of:
+
+- Short-term context: Current goal, location, dialogue state
+- Long-term context: Driver preferences, history, personalization
+- MCP integation: Exposes structured vehicle state and available commands
+
+This modular separation allows LLMs/agents to reason over abstract context without being tightly coupled to hardware interfaces.
+
+
+Model Context Protocol (MCP) Server
+--------------------------------------
+
+MCP provides structured data to the LLM in a machine-readable format. For example:
+
+- ``vehicle.speed``: Current vehicle speed
+- ``nav.destination``: Active navigation goal
+- ``climate.status``: A/C on/off, temperature
+
+It also maps safe commands that may be executed. For example:
+
+.. code-block:: json
+
+    {
+      "action": "set_temperature",
+      "params": { "zone": "driver", "value": 22 }
+    }
+
+This ensures LLM/agent outputs can be transformed into machine-executable commands through explicit contracts.
+
+
+Prompting Interface
+----------------------
+
+The Prompting Interface is the central orchestration layer that governs how LLMs receive inputs, structure responses, and interact with other system components.
+While the underlying runtime performs raw text generation one token at a time, the Prompting Interface manages everything around it —
+ensuring that prompts are context-aware, structured, and suitable for interactive, real-time use.
+
+The prompting interface includes following features:
+
+- Prompt Templating
+   - Supports distinct roles (system, user) and injects them as structured tokens
+   - Ensures prompts are predictable, reusable, and structured across tasks
+   - Encourages consistent tone and framing
+- Dynamic Context Injection
+   - Pulls real-time and personalized data from other sources (e.g., MCP server, Context API)
+   - Injects variables such as ``current_speed``, ``destination``, ``driver_name``, ``external_temperature``
+   - Allows LLMs to tailor responses based on driving situation, weather, or personal preferences
+- Prompt Chaining
+   - Splits complex queries or tasks into smaller subtasks and manages their sequencing
+   - Useful for multi-turn workflows (e.g. POI search + voice confirmation)
+   - May involve internal reasoning steps that remain hidden from the user
+- Streaming Output Decoding
+   - Handles incremental output from the model, token by token
+   - Enables responsive voice assistants and progressive rendering of long responses
+   - Manages buffering, line completion, and fallback behavior (e.g. timeouts, retries)
+   - Detects action responses and invokes them
+
+Together, these features elevate the LLM from a raw text generator to a well-structured, interactive agent.
+The Prompting Interface is essential for ensuring that GenAI systems behave predictably, contextually, and safely in embedded, real-time environments.
+
+
+Action Validator
+----------------
+
+To ensure safety and traceability, all GenAI-generated commands should be passed through an Action Validator module before being executed.
+This component should be designed as an abstract base class and extended for the final use case by the user.
+
+Implementations examples include:
+
+- Rule-based filters (e.g. prohibit certain actions at high speed)
+- Context-aware rejection (e.g. don't open windows in rain)
+
+This mechanism ensures that LLMs remain advisory and non-authoritative in mixed-criticality systems.
 
 
 Requirements
-------------
+____________
 
 
 Backwards Compatibility
@@ -282,9 +419,17 @@ Backwards compatibility to current systems is ensured by supporting established 
 Security Impact
 ===============
 
+GenAI introduces meaningful attack vectors (e.g. prompt injection).
+Therefore, GenAI modules shall be sandboxed at runtime, with an action validator enforcing whitelisting of actions.
+Prompt inputs shall be rate-limited and validated to avoid injection or malformed queries.
+
 
 Safety Impact
 =============
+
+GenAI workloads shall be treated as QM only.
+LLM-driven actions must not bypass safety monitoring or certified control paths.
+The system must ensure that even advisory suggestions remain non-authoritative unless explicitly permitted by the integrator.
 
 
 License Impact
@@ -302,8 +447,9 @@ Rejected Ideas
 Open Issues
 ===========
 
-- GPU shared memory data pipeline
+- GPU shared memory data pipeline and tight coupling of GPU memory object to vendor specific libraries
 - ONNX support on QNX
+- S-CORE recording may not capture GPU-to-GPU data flows
 
 
 Footnotes
