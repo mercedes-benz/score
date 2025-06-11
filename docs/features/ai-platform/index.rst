@@ -108,7 +108,7 @@ The idea of this component is to provide a lightweight and certifiable abstracti
 To provide model execution capability, the system must support inference backends via a thin abstraction layer.
 This layer will expose a unified interface to the upper layers of the stack while delegating execution to optimized
 vendor runtimes underneath — such as TensorRT for NVIDIA, or QNN for Qualcomm-based systems.
-For non-safety use cases, a standardized backend like ONNX Runtime should be supported to ensure portability and developer accessibility.
+For non-safety use cases, a standardized backend like ONNX Runtime [#s1]_ should be supported to ensure portability and developer accessibility.
 However, ONNX Runtime currently lacks QNX support - which will further be investigated.
 
 
@@ -117,7 +117,7 @@ Concept
 
 The diagram below illustrates the architecture of the AIP Abstraction Layer - here called ModelAPI.
 It highlights how a unified Adapter Interface allows seamless integration with different hardware-dependent inference backends
-(e.g., ONNX Runtime, TensorRT), as well as a mock backend for testing.
+(e.g. ONNX Runtime, TensorRT), as well as a mock backend for testing.
 The IOUtils module handles preprocessing and input preparation.
 Keeping IOUtils as a separate library helps isolate input handling logic from inference logic,
 making it easier to test, reuse, and extend preprocessing across different models and backends.
@@ -264,6 +264,7 @@ This includes:
 
 This unified approach avoids fragmentation and ensures that AI models are treated as first-class citizens within the system.
 
+
 GenAI
 _____
 
@@ -318,47 +319,12 @@ Basic data/control flow explanation:
 - The MCP Server acts as a proxy between the GenAI subsystem and the vehicle platform. It reads sensor and state data from the Vehicle API and exposes tools (i.e., callable functions) for executing commands like HVAC control.
 - When the Action Validator approves a proposed action, the corresponding MCP tool is triggered. The MCP Server then sends the command to the Vehicle API for execution by the vehicle systems.
 
+
 Runtime
 -------
 
-The platform shall support model runtimes like llama.cpp for model execution.
+The platform shall support model runtimes like llama.cpp [#s2]_ for model execution.
 It is **not** a goal to provide a proprietary runtime.
-
-
-Context API
---------------
-
-The Context API is a conceptual umbrella for providing LLMs with both real-world state (via MCP) and session/task context (via in-memory or config-based injection).
-It serves as a unified interface that aggregates all information relevant to the LLM's/agent's decision-making and interaction behavior.
-
-It is composed of:
-
-- Short-term context: Current goal, location, dialogue state
-- Long-term context: Driver preferences, history, personalization
-- MCP integation: Exposes structured vehicle state and available commands
-
-This modular separation allows LLMs/agents to reason over abstract context without being tightly coupled to hardware interfaces.
-
-
-Model Context Protocol (MCP) Server
---------------------------------------
-
-MCP provides structured data to the LLM in a machine-readable format. For example:
-
-- ``vehicle.speed``: Current vehicle speed
-- ``nav.destination``: Active navigation goal
-- ``climate.status``: A/C on/off, temperature
-
-It also maps safe commands that may be executed. For example:
-
-.. code-block:: json
-
-    {
-      "action": "set_temperature",
-      "params": { "zone": "driver", "value": 22 }
-    }
-
-This ensures LLM/agent outputs can be transformed into machine-executable commands through explicit contracts.
 
 
 Prompting Interface
@@ -392,6 +358,42 @@ Together, these features elevate the LLM from a raw text generator to a well-str
 The Prompting Interface is essential for ensuring that GenAI systems behave predictably, contextually, and safely in embedded, real-time environments.
 
 
+Context API
+-----------
+
+The Context API is a conceptual umbrella for providing LLMs with both real-world state (via MCP) and session/task context (via in-memory or config-based injection).
+It serves as a unified interface that aggregates all information relevant to the LLM's/agent's decision-making and interaction behavior.
+
+It is composed of:
+
+- Short-term context: Current goal, location, dialogue state
+- Long-term context: Driver preferences, history, personalization
+- MCP integation: Exposes structured vehicle state and available commands
+
+This modular separation allows LLMs/agents to reason over abstract context without being tightly coupled to hardware interfaces.
+
+
+Model Context Protocol (MCP) Server
+-----------------------------------
+
+MCP [#s3]_ provides structured data to the LLM in a machine-readable format. For example:
+
+- ``vehicle.speed``: Current vehicle speed
+- ``nav.destination``: Active navigation goal
+- ``climate.status``: A/C on/off, temperature
+
+It also maps safe commands that may be executed. For example:
+
+.. code-block:: json
+
+    {
+      "action": "set_temperature",
+      "params": { "zone": "driver", "value": 22 }
+    }
+
+This ensures LLM/agent outputs can be transformed into machine-executable commands through explicit contracts.
+
+
 Action Validator
 ----------------
 
@@ -413,28 +415,57 @@ ____________
 Backwards Compatibility
 =======================
 
-Backwards compatibility to current systems is ensured by supporting established frameworks and only providing light weight abstractions and supporting components around it.
+Backwards compatibility to current systems is ensured by supporting established frameworks and only providing light weight abstractions and support-components around it.
 
 
 Security Impact
 ===============
 
-GenAI introduces meaningful attack vectors (e.g. prompt injection).
-Therefore, GenAI modules shall be sandboxed at runtime, with an action validator enforcing whitelisting of actions.
-Prompt inputs shall be rate-limited and validated to avoid injection or malformed queries.
+The AI Platform introduces several new attack surfaces that require security consideration across both inference and GenAI subsystems.
+Therefore, the overall security architecture must be revisited in detail to assess and mitigate potential risks.
+
+The following non-complete list highlights a few security considerations per component.
+
+- Inference Backends
+   - Ensure that model binaries are verified, authenticated, and integrity-checked before execution
+   - Restrict model file loading to trusted paths and signed artifacts to prevent tampering or malicious injection
+- GenAI (LLM) Execution
+   - Prompt inputs must be validated and rate-limited to protect against injection attacks or malformed sequences
+   - The action validator must enforce whitelisting of executable commands to prevent unsafe or unintended vehicle operations
+- MCP and Context APIs
+   - All communication with the MCP Server must be authenticated and authorized
+   - Write operations to the Context API (e.g. preference updates) must be explicitly scoped and validated
 
 
 Safety Impact
 =============
 
-GenAI workloads shall be treated as QM only.
-LLM-driven actions must not bypass safety monitoring or certified control paths.
-The system must ensure that even advisory suggestions remain non-authoritative unless explicitly permitted by the integrator.
+The AI Platform is designed to support both QM and ASIL-B use cases, with a clear separation between safety-relevant and non-safety-relevant functionality.
+
+The following list gives an idea of safety considerations and is not complete. An in-depth safety analysis must be conducted in the future.
+
+- Inference Backends
+   - For safety-related features (e.g. perception), inference backends must be certified
+   - The backend abstraction layer must be minimal and deterministic to allow safety analysis and independent certification - it must achieve at least the same ASIL-level as the backends
+- Data Pipelines
+   - GPU-based data flows used in safety functions must ensure determinism, bounded latency, and isolation from non-safety components
+   - Zero-copy paths must ensure safe memory access patterns and partitioning
+- GenAI
+   - GenAI workloads are scoped as QM
+   - LLM-driven actions must not bypass safety monitoring or certified control paths
 
 
 License Impact
 ==============
 
+
+The AI Platform is expected to be implemented primarily using Free and Open Source Software (FOSS), in alignment with the Eclipse Foundation’s licensing principles.
+
+- All new components (e.g. abstraction layers, adapters, GenAI interfaces) developed under this feature shall be licensed under the Apache 2.0 License
+- Third-party runtime dependencies such as ONNX Runtime or llama.cpp are also licensed under permissive FOSS licenses (MIT, Apache 2.0), making them compatible with the overall platform license
+- Any optional use of proprietary or closed-source AI runtimes (e.g. vendor-specific TensorRT libraries) must be isolated behind the backend abstraction and excluded from the FOSS-licensed deliverables
+
+No additional licensing constraints are introduced by this feature request beyond those already adopted in S-CORE.
 
 How to Teach This
 =================
@@ -450,7 +481,14 @@ Open Issues
 - GPU shared memory data pipeline and tight coupling of GPU memory object to vendor specific libraries
 - ONNX support on QNX
 - S-CORE recording may not capture GPU-to-GPU data flows
+- Decide on inference engine for QNX (e.g. ONNX, LiteRT, ExecuTorch)
+- Decide on GenAI runtime (e.g. llama.cpp)
+- Add Requirements
 
 
 Footnotes
 =========
+
+.. [#s1] "ONNX Runtime repo", GitHub Microsoft, https://github.com/microsoft/onnxruntime.
+.. [#s2] "llama.cpp repo", GitHub ggml-org, https://github.com/ggml-org/llama.cpp.
+.. [#s3] "MCP Servers repo", GitHub modelcontextprotocol, https://github.com/modelcontextprotocol/servers.
