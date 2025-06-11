@@ -53,11 +53,20 @@ data pipelining mechanisms to abstract communication of GPU-resident objects.
 Motivation
 ==========
 
+The AI Platform is needed to support the industry's transition from traditional rule-based systems and fixed-function ECUs to
+software-defined and increasingly AI-defined vehicles.
+As automotive platforms evolve, intelligent systems must be able to process perception, planning and driver interaction using machine-learned behavior.
+The AI Platform enables modular, safety-aligned integration of ML and GenAI components
+and provides the foundation for moving from a Software-Defined Vehicle (SDV) architecture to an AI-Defined Vehicle (AIDV).
 
 
 Rationale
 =========
 
+This approach in this Feature Request was selected to ensure a modular, certifiable, and platform-agnostic AI integration layer for automotive applications.
+By abstracting inference backends and structuring data flow through standardized interfaces, the architecture enables safety certification (ASIL-B),
+supports reuse across Linux and QNX, and allows for flexibility in deploying both ML and GenAI models.
+It balances the need for runtime efficiency, safety alignment, and support for future AI-defined vehicle concepts.
 
 
 Specification
@@ -470,9 +479,23 @@ No additional licensing constraints are introduced by this feature request beyon
 How to Teach This
 =================
 
+The following sources are recommended for onboarding:
+
+- ONNX Runtime GitHub Repo [#s1]_
+- llama.cpp GitHub Repo [#s2]_
+- MCP Servers GitHub Repo [#s3]_
+
+And of course: Udemy, Youtube, Google, etc.
+
 
 Rejected Ideas
 ==============
+
+Dynamic runtime backend selection was rejected to ensure deterministic behavior and reduce runtime complexity, particularly for ASIL-B use cases.
+Static backend selection at build time enables better certification and minimizes safety risks.
+
+Direct integration of inference logic into applications without a common abstraction layer was rejected to avoid code duplication, maintain modularity and enable cross-platform backend support.
+The adapter-based architecture allows better testability and reuse across QNX and Linux as well has HW platforms.
 
 
 Open Issues
