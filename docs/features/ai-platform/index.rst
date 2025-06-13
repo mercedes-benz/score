@@ -85,7 +85,7 @@ QNX is prioritized (Priority 1) due to its relevance in safety applications.
 Linux support (Priority 2) primarily targets non-safety-critical applications, including Generative AI (GenAI) workloads.
 Safety use cases will adhere to the constraints imposed by functional safety requirements,
 whereas Linux allows for more flexible development.
-All features available on QNX will also support Linux.
+All features available on QNX will also be available on Linux.
 
 
 QNX
@@ -278,7 +278,7 @@ GenAI
 _____
 
 This section defines the platform's support for Generative AI (GenAI), with a focus on enabling on-device inference
-using large language models (LLMs) for interactions in the vehicle context.
+using small and large language models (SLM/LLMs) for interactions in the vehicle context.
 
 In addition to standard prompt-response interaction, the scope includes support for agentic capabilities — enabling
 LLM-based agents that operate with situational awareness, memory, goal orientation, and structured communication with vehicle systems.
@@ -288,14 +288,16 @@ Scope Overview
 --------------
 
 The platform shall support Generative AI inference on Linux targets for non-safety-critical use cases,
-enabling contextual in-vehicle assistance and edge-based large language model (LLM) execution.
+enabling contextual in-vehicle assistance and edge-based small and large language model (SLM/LLM) execution.
 The focus is on enabling model execution, streamlined integration with in-vehicle communication systems and flexible data injection via APIs.
+
+*Note: SLM/LLMs need function calling capability for the whole scope of this proposal to be accessible.*
 
 Key Goals:
 
-- Enable on-device LLM inference using runtimes such as llama.cpp
+- Enable on-device SLM/LLM inference using runtimes such as llama.cpp
 - Define a Context API that allows the injection of relevant task context, session memory, driver preferences, and environmental factors into the LLM
-- Provide an MCP Server that exposes vehicle states and control interfaces to the LLM in a structured, machine-readable format, enabling real-time interaction with in-vehicle systems
+- Provide an MCP Server that exposes vehicle states and control interfaces to the SLM/LLM in a structured, machine-readable format, enabling real-time interaction with in-vehicle systems
 
 The table below gives a brief overview of considered components and their respective function.
 
@@ -306,9 +308,9 @@ The table below gives a brief overview of considered components and their respec
 +---------------------------+----------------------------------------------------------------------------+
 | Prompting Interface       | Manages prompt templates, roles, chaining, and streaming I/O               |
 +---------------------------+----------------------------------------------------------------------------+
-| Context API               | Overarching interface to manage agent memory, goals, session state         |
+| Context API               | Interface to manage agent memory, goals, session                           |
 +---------------------------+----------------------------------------------------------------------------+
-| MCP Server                | Provides structured vehicle context and controls                           |
+| MCP Server                | Provides structured vehicle context and tools                              |
 +---------------------------+----------------------------------------------------------------------------+
 | Action Validator          | Safety layer to validate LLM-generated actions before execution            |
 +---------------------------+----------------------------------------------------------------------------+
@@ -323,10 +325,10 @@ Basic data/control flow explanation:
 
 - The Prompting Interface sends a fully constructed prompt — containing system messages, user input, and injected context — to the LLM for inference. This serves as the main entry point for user interaction and model execution.
 - The Prompting Interface also monitors the token stream returned by the LLM, buffering output for speech or display and detecting structured outputs such as function calls or action proposals. When an action is detected, it is passed to the Action Validator for policy enforcement.
-- The Prompting Interface retrieves relevant context from the Context API. This includes session memory, task goals, and personalization data that shape how prompts are built and responses are interpreted.
-- The Context API aggregates internal state and preferences and consumes structured, real-time vehicle data from the MCP Server. This includes signals such as current speed, destination, or climate status, provided as typed resources.
+- The Prompting Interface retrieves relevant context from the Context API. This includes session memory, task goals, and personalization data that shape how prompts are built and responses are interpreted. In addition, it queries live vehicle state and resource availability via the MCP Client.
+- The Context API manages user preferences, goals, and session memory.
 - The MCP Server acts as a proxy between the GenAI subsystem and the vehicle platform. It reads sensor and state data from the Vehicle API and exposes tools (i.e., callable functions) for executing commands like HVAC control.
-- When the Action Validator approves a proposed action, the corresponding MCP tool is triggered. The MCP Server then sends the command to the Vehicle API for execution by the vehicle systems.
+- When the Action Validator approves a proposed action, the MCP Server sends the command to the Vehicle API for execution by the vehicle systems.
 
 
 Runtime
@@ -342,6 +344,7 @@ Prompting Interface
 The Prompting Interface is the central orchestration layer that governs how LLMs receive inputs, structure responses, and interact with other system components.
 While the underlying runtime performs raw text generation one token at a time, the Prompting Interface manages everything around it —
 ensuring that prompts are context-aware, structured, and suitable for interactive, real-time use.
+Additionally, it is hosted in the same process as the MCP Client which allows it to retrieve context and tools from a domain like the vehicle.
 
 The prompting interface includes following features:
 
@@ -361,29 +364,29 @@ The prompting interface includes following features:
    - Handles incremental output from the model, token by token
    - Enables responsive voice assistants and progressive rendering of long responses
    - Manages buffering, line completion, and fallback behavior (e.g. timeouts, retries)
-   - Detects action responses and invokes them
+   - Passes actions to MCP Client for invokation
 
-Together, these features elevate the LLM from a raw text generator to a well-structured, interactive agent.
+Together, these features elevate the SLM/LLM from a raw text generator to a well-structured, interactive agent.
 The Prompting Interface is essential for ensuring that GenAI systems behave predictably, contextually, and safely in embedded, real-time environments.
 
 
 Context API
 -----------
 
-The Context API is a conceptual umbrella for providing LLMs with both real-world state (via MCP) and session/task context (via in-memory or config-based injection).
-It serves as a unified interface that aggregates all information relevant to the LLM's/agent's decision-making and interaction behavior.
-
-It is composed of:
+The Context API is a conceptual interface for managing task-level memory, dialogue state, and user preferences during LLM-based interactions.
+It provides structured access to:
 
 - Short-term context: Current goal, location, dialogue state
 - Long-term context: Driver preferences, history, personalization
-- MCP integation: Exposes structured vehicle state and available commands
 
 This modular separation allows LLMs/agents to reason over abstract context without being tightly coupled to hardware interfaces.
+This modular separation allows LLMs and agents to reason over abstract context — such as goals, preferences, and session state —
+without direct coupling to low-level system interfaces like the file system or persistent storage.
 
+The Context API will also allow updates to long-term user context.
 
-Model Context Protocol (MCP) Server
------------------------------------
+Model Context Protocol (MCP) Client/Server
+------------------------------------------
 
 MCP [#s3]_ provides structured data to the LLM in a machine-readable format. For example:
 
@@ -402,11 +405,16 @@ It also maps safe commands that may be executed. For example:
 
 This ensures LLM/agent outputs can be transformed into machine-executable commands through explicit contracts.
 
+Due to the MCP specification enforcing a 1:1 client-server connection, the MCP Client is hosted within the Main Application.
+This architectural choice ensures that only a single authoritative interface manages communication with the MCP Server.
+Consequently, the Context API does not interface with the MCP Server directly.
+Instead, the Prompting Interface (PI) retrieves live vehicle context data via the MCP Client,
+combining it with internal session and user state managed by the Context API.
 
 Action Validator
 ----------------
 
-To ensure safety and traceability, all GenAI-generated commands should be passed through an Action Validator module before being executed.
+To ensure safety and traceability, all GenAI-generated commands should be validated by an Action Validator before being executed.
 This component should be designed as an abstract base class and extended for the final use case by the user.
 
 Implementations examples include:
@@ -415,6 +423,13 @@ Implementations examples include:
 - Context-aware rejection (e.g. don't open windows in rain)
 
 This mechanism ensures that LLMs remain advisory and non-authoritative in mixed-criticality systems.
+Upon approval by the Action Validator, the MCP Server executes the command of the respective MCP tool.
+
+Advantages of using the Action Validator in the MCP Server (rather than in the Prompting Interface) include:
+
+- Action validation is close to the domain and can follow same domain specific non-functional requirements
+- MCP Server already has access to state data which simplifies rule checking
+- Easy to extend for new or existing MCP tools - only one component is affected by change
 
 
 Requirements
@@ -506,6 +521,7 @@ Open Issues
 - S-CORE recording may not capture GPU-to-GPU data flows
 - Decide on inference engine for QNX (e.g. ONNX, LiteRT, ExecuTorch)
 - Decide on GenAI runtime (e.g. llama.cpp)
+- Select language per components (cpp vs rust), e.g. rust for MCP Server
 - Add Requirements
 
 
