@@ -12,24 +12,31 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-.. _aip_feature:
+.. _ai_platform_feature:
 
 AI Platform
 ###########
 
 .. document:: AI-Platform
-   :id: doc__aipcs
+   :id: doc__ai_platform
    :status: draft
    :safety: ASIL_B
    :tags: feature_request
 
+.. toctree::
+   :maxdepth: 1
+   :glob:
+   :titlesonly:
+   :hidden:
+
+   requirements/index
 
 Feature flag
 ============
 
 To activate this feature, use the following feature flag:
 
-``experimental_aip``
+``experimental_ai_platform``
 
 
 Abstract
@@ -437,6 +444,8 @@ Advantages of using the Action Validator in the MCP Server (rather than in the P
 Requirements
 ____________
 
+The related requirements can be found in :doc:`requirements/index`.
+
 
 Backwards Compatibility
 =======================
@@ -525,7 +534,6 @@ Open Issues
 - Decide on inference engine for QNX (e.g. ONNX, LiteRT, ExecuTorch)
 - Decide on GenAI runtime (e.g. llama.cpp)
 - Select language per components (cpp vs rust), e.g. rust for MCP Server
-- Add Requirements
 
 
 Footnotes
