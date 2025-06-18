@@ -296,6 +296,7 @@ The focus is on enabling model execution, streamlined integration with in-vehicl
 Key Goals:
 
 - Enable on-device SLM/LLM inference using runtimes such as llama.cpp
+- Support inference on multiple models at the same time
 - Define a Context API that allows the injection of relevant task context, session memory, driver preferences, and environmental factors into the LLM
 - Provide an MCP Server that exposes vehicle states and control interfaces to the SLM/LLM in a structured, machine-readable format, enabling real-time interaction with in-vehicle systems
 
@@ -350,6 +351,7 @@ The prompting interface includes following features:
 
 - Prompt Templating
    - Supports distinct roles (system, user) and injects them as structured tokens
+   - The roles enable a differentiation between user and non-user interactions
    - Ensures prompts are predictable, reusable, and structured across tasks
    - Encourages consistent tone and framing
 - Dynamic Context Injection
@@ -519,6 +521,7 @@ Open Issues
 - GPU shared memory data pipeline and tight coupling of GPU memory object to vendor specific libraries
 - ONNX support on QNX
 - S-CORE recording may not capture GPU-to-GPU data flows
+- Agentic support evaluation
 - Decide on inference engine for QNX (e.g. ONNX, LiteRT, ExecuTorch)
 - Decide on GenAI runtime (e.g. llama.cpp)
 - Select language per components (cpp vs rust), e.g. rust for MCP Server
