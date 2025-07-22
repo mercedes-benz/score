@@ -12,14 +12,21 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Requirements management
-------------------------
+.. _tools:
 
-Purpose
-+++++++
+S-CORE Tools Overview
+=====================
 
-Objectives and scope
-++++++++++++++++++++
+.. needtable:: Tools List
+   :tags: tool_management
+   :filter: "tool_management" in tags and type == "doc_tool" and is_external == False
+   :style: table
+   :sort: status
+   :columns: id as "UID";title as "TITLE";version as "VERSION";status as "STATUS";tcl as "TCL";safety_affected as "SAFETY AFFECTED";security_affected as "SECURITY AFFECTED"
+   :colwidths: 30,30,30,30,30,30,30
 
-Approach
-++++++++
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+
+   doc_as_code
