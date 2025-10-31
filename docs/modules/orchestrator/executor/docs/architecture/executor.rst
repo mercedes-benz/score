@@ -12,25 +12,30 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-.. document:: FEO Assumptions of Use Requirements
-   :id: doc__frameworks_feo_aou_reqs
-   :status: draft
-   :security: NO
-   :safety: ASIL_B
-   :realizes: PROCESS_wp__requirements_feat_aou
+Component Architecture
+=======================
 
-FEO Feature Assumption of Use Requirements
-==========================================
-
-
-.. aou_req:: FEO something
-   :id: aou_req__feature_feo__something
-   :reqtype: Functional
-   :security: NO
-   :safety: ASIL_B
+.. document:: Executor Architecture
+   :id: doc__executor_architecture
    :status: valid
+   :safety: ASIL_B
+   :security: YES
+   :realizes: PROCESS_wp__component_arch
+   :tags: orchestration, executor
 
-   Something shall be done.
+.. comp_arc_sta:: Executor
+   :id: comp_arc_sta__orch__executor
+   :security: YES
+   :safety:  ASIL_B
+   :status: valid
+   :uses: logic_arc_int__logging__logging, logic_arc_int__tracing__tracing
 
-.. needextend:: docname is not None and "frameworks/feo/requirements" in docname
-   :+tags: frameworks_feo
+   .. needarch::
+      :scale: 50
+      :align: center
+
+      {{ draw_component(need(), needs) }}
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:

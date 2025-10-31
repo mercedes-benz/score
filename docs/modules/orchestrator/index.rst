@@ -12,25 +12,21 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-.. document:: FEO Assumptions of Use Requirements
-   :id: doc__frameworks_feo_aou_reqs
-   :status: draft
-   :security: NO
-   :safety: ASIL_B
-   :realizes: PROCESS_wp__requirements_feat_aou
+Orchestrator Module
+###################
 
-FEO Feature Assumption of Use Requirements
-==========================================
+.. toctree::
+   :titlesonly:
+   :maxdepth: 2
 
+   ./docs/index
 
-.. aou_req:: FEO something
-   :id: aou_req__feature_feo__something
-   :reqtype: Functional
-   :security: NO
-   :safety: ASIL_B
-   :status: valid
+Components
+==========
 
-   Something shall be done.
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :glob:
 
-.. needextend:: docname is not None and "frameworks/feo/requirements" in docname
-   :+tags: frameworks_feo
+   ./*/docs/index
