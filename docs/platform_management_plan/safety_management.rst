@@ -94,7 +94,7 @@ The following  ISO 26262 defined safety work products are not relevant for the S
   However, these are considered "Assumed Technical Safety Requirements" of the SW platform SEooC and do not require testing by the SEooC supplier.
   Thus, system-level testing is out of scope. S-CORE will implement platform tests of stakeholder requirements for demonstration purposes,
   but these are not intended to provide complete coverage of the stakeholder requirements.
-  There will be SW integration tests of feature requirements, and HW/SW integration as specified in ISO 26262 part 4.
+  There will be SW integration tests of feature requirements as specified in ISO 26262 part 4.
   These tests may be reused by users on their HW platform to address Technical Safety Requirements for the SW platform.
   Whether these are sufficient to cover the TSRs must be analyzed and decided by the user.
 
@@ -123,7 +123,7 @@ The following  ISO 26262 defined safety work products are not relevant for the S
   Expectations towards the HW/Environment are covered by AoUs. Additionally S-CORE only provides reference HW integration,
   so every user of the platform would have to redo the effort anyway: :need:`std_wp__iso26262__software_652`
 
-* Because the SW platform is not an safety item but an element: :need:`std_wp__iso26262__management_651`
+* Because the SW platform is not an safety item but an element: :need:`std_wp__iso26262__management_651`, hence impact analysis of the item level is tailored out
 
 But also some activities based on requirements defining what has to be done to create a workproduct which is in scope of the S-CORE platform are tailored:
 
@@ -265,6 +265,10 @@ Note that the Eclipse Foundation also defines `project phases <https://www.eclip
 Eclipse definition is more about the process maturity for the whole project, if we are in Mature Phase, we latest will have the project lifecycle as defined in our process description.
 Nevertheless, Safety Development and even Safety Case release is independent from Mature and Incubation Phase as the completeness and appropriateness of the platform process and artifacts
 is determined by Safety Audit and not be Eclipse project reviews.
+The S-CORE project implements a reduced ISO 26262 safety lifecycle, covering only those phases relevant to software SEooC development.
+All omitted phases (e.g., HARA, system/hardware development, calibration, proven-in-use) are justified and documented in the Tailoring section.
+All safety activities, planning, and evidence generation are tracked via the Platform Safety Plan, Module Safety Plans, and associated GitHub Issues.
+This approach ensures compliance with ISO 26262 for software SEooC, while avoiding unnecessary activities not applicable to the S-CORE context.
 
 Functional Safety Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
