@@ -161,7 +161,7 @@ The project is committed to further strengthening the interface between safety a
 This approach ensures that cybersecurity is not treated in isolation, but as an integral part of the platform's safety culture and management system.
 
 Functional Safety Management Organization
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------
 
 It is the project strategy to qualify the platform or components of the platform to the appropriate international standards and directives.
 Therefore the project approach to facilitate a common culture regarding safety and security is part of our documentation.
@@ -209,7 +209,7 @@ The successful checking of committers and CODEOWNERS skills is ensured by the sa
 One important aspect to this is, that we ensure the identity of the committer by applying the GitHub digital signature mechanism.
 
 Functional Safety Resources
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------
 
 A dedicated safety manager is elected by :need:`rl__project_lead` for all the S-CORE SEooCs development.
 
@@ -229,7 +229,7 @@ The issue types and issue types workflows are described in the platform manageme
 For safety relevant issues types a "safety" label is used.
 
 Functional Safety Management Communication
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------------
 
 To exchange general information and to clarify general topics the following communication channels are used:
 
@@ -258,7 +258,7 @@ Examples for valid escalation causes are:
 * There are conflicting points-of-view between the project manager and the safety manager
 
 Functional Safety Management Life Cycle
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------
 
 The safety lifecycle of the S-CORE project is initiated at the project set-up and driven and maintained by the safety manager supported by the :need:`rl__process_community`.
 Note that the Eclipse Foundation also defines `project phases <https://www.eclipse.org/projects/handbook/#starting-project-phases>`_.
@@ -271,34 +271,35 @@ All safety activities, planning, and evidence generation are tracked via the Pla
 This approach ensures compliance with ISO 26262 for software SEooC, while avoiding unnecessary activities not applicable to the S-CORE context.
 
 Functional Safety Requirements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+++++++++++++++++++++++++++++++
+
 Requirement Engineering is defined in the process description. See :need:`doc__project_mgt_plan`.
 
 The application of ISO 26262 standards requirements is realized by defining process guidances and matching those to the ISO 26262 requirements (see e.g. for example :need:`gd_req__safety_doc_status`).
 
 Functional Safety Schedule
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------
 The schedule is defined in section "Platform Safety Plan" below, but also within each module safety plan. See linked issues below and in :need:`gd_temp__module_safety_plan`.
 
 Functional Safety Development
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 The SW development is defined in the project-wide software development plan. See :doc:`software_development`
 
 Functional Safety Verification
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------
 The platform management plan defines the :doc:`software_verification`
 
 Functional Safety Tool Management
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
 The platform management plan defines :doc:`tool_management`
 
 Functional Safety Work Products
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------
 The work products relevant for a module development is defined within each module safety management plan. See :need:`gd_temp__module_safety_plan`.
 Generic project wide work products are defined below.
 
 Functional Safety Quality Criteria
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------
 The platform management plan defines :doc:`quality_management`
 
 Platform Safety Plan
