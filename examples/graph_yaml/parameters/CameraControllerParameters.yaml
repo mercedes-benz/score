@@ -1,0 +1,24 @@
+name: CameraControllerParameters
+top_level: true
+members:
+  - name: camera_id
+    member_type: uint8_t
+    default: 0
+  - name: frame_rate_fps
+    member_type: uint32_t
+    default: 30
+  - name: resolution_width
+    member_type: uint32_t
+    default: 1920
+  - name: resolution_height
+    member_type: uint32_t
+    default: 1080
+  - name: exposure_auto
+    member_type: bool
+    default: true
+  - name: exposure_time_us
+    member_type: uint32_t
+    default: 33333
+  - name: gain
+    member_type: float
+    default: 1.0

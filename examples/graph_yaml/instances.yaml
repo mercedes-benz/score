@@ -1,0 +1,156 @@
+namespace: MiniADAS
+
+instances:
+  # Main processing pipeline: CAMERA -> NEURAL_NET -> BRAKE_CONTROLLER
+  # Parallel processing: CAMERA + NEURAL_NET -> TRAFFIC_SIGN_CONTROLLER
+
+  # Camera sensor instance (SOURCE)
+  - archetype_reference: CameraController
+    unique_name: front_camera
+    parameter_overrides:
+      - name: camera_id
+        value: 0
+      - name: frame_rate_fps
+        value: 30
+      - name: resolution_width
+        value: 1920
+      - name: resolution_height
+        value: 1080
+    outputs:
+      - output_reference: camera_frames
+        topic_name: MiniADAS:CameraSensor.front_camera:raw_frames
+    execution_params:
+      autostart: true
+      autorestart: true
+
+  # Neural network inference instance (INTERMEDIATE) 
+  - archetype_reference: NeuralNetInference
+    unique_name: object_detector
+    parameter_overrides:
+      - name: model_path
+        value: "/models/yolo_v8_automotive.onnx"
+      - name: confidence_threshold
+        value: 0.75
+      - name: nms_threshold
+        value: 0.45
+      - name: max_detections
+        value: 32
+    inputs:
+      - input_reference: input_frames
+        topic_name: MiniADAS:CameraSensor.front_camera:raw_frames
+    outputs:
+      - output_reference: detections
+        topic_name: MiniADAS:ObjectDetection.object_detector:detected_objects
+    execution_params:
+      autostart: true
+      autorestart: true
+
+  # Traffic Sign Recognition instance (SEQUENTIAL INTERMEDIATE)
+  - archetype_reference: TrafficSignRecognition
+    unique_name: traffic_sign_controller
+    parameter_overrides:
+      - name: confidence_threshold
+        value: 0.85  # Higher confidence needed for traffic signs
+      - name: max_detection_distance_m
+        value: 100.0
+      - name: enable_speed_limit_detection
+        value: true
+      - name: enable_warning_signs
+        value: true
+      - name: sign_tracking_enabled
+        value: true
+    inputs:
+      - input_reference: object_detections
+        topic_name: MiniADAS:ObjectDetection.object_detector:detected_objects
+    outputs:
+      - output_reference: traffic_sign_commands
+        topic_name: MiniADAS:TrafficSigns.traffic_sign_controller:sign_commands
+    execution_params:
+      autostart: true
+      autorestart: true
+
+  # Brake controller instance (SINK)
+  - archetype_reference: BrakeController
+    unique_name: emergency_brake_ctrl
+    parameter_overrides:
+      - name: ttc_threshold_seconds
+        value: 2.5
+      - name: max_brake_pressure_bar
+        value: 180.0
+      - name: emergency_deceleration_mps2
+        value: 8.0
+      - name: enable_emergency_braking
+        value: true
+    inputs:
+      - input_reference: object_detections
+        topic_name: MiniADAS:ObjectDetection.object_detector:detected_objects
+    outputs:
+      - output_reference: brake_commands
+        topic_name: MiniADAS:BrakeControl.emergency_brake_ctrl:brake_commands
+    execution_params:
+      autostart: true
+      autorestart: true
+
+  # Independent logging service (SINK - multiple inputs)
+  - archetype_reference: SystemLogger
+    unique_name: system_data_logger
+    parameter_overrides:
+      - name: log_level
+        value: 1  # Info level
+      - name: log_file_path
+        value: "/var/log/adas/system.log"
+      - name: max_file_size_mb
+        value: 100
+      - name: enable_camera_logging
+        value: true
+      - name: enable_detection_logging
+        value: true
+      - name: enable_brake_logging
+        value: true
+      - name: enable_traffic_sign_logging
+        value: true
+    inputs:
+      - input_reference: camera_data_log
+        topic_name: MiniADAS:CameraSensor.front_camera:raw_frames
+      - input_reference: detection_log
+        topic_name: MiniADAS:ObjectDetection.object_detector:detected_objects
+      - input_reference: brake_command_log
+        topic_name: MiniADAS:BrakeControl.emergency_brake_ctrl:brake_commands
+      - input_reference: traffic_sign_log
+        topic_name: MiniADAS:TrafficSigns.traffic_sign_controller:sign_commands
+    outputs:
+      - output_reference: log_entries
+        topic_name: MiniADAS:Logging.system_data_logger:log_entries
+    execution_params:
+      autostart: true
+      autorestart: true
+
+  # Independent performance tracing service (SINK - multiple inputs)
+  - archetype_reference: PerformanceTracer
+    unique_name: system_perf_monitor
+    parameter_overrides:
+      - name: sampling_rate_hz
+        value: 100
+      - name: trace_file_path
+        value: "/var/log/adas/performance.trace"
+      - name: cpu_monitoring_enabled
+        value: true
+      - name: memory_monitoring_enabled
+        value: true
+      - name: timing_analysis_enabled
+        value: true
+    inputs:
+      - input_reference: camera_perf_trace
+        topic_name: MiniADAS:CameraSensor.front_camera:raw_frames
+      - input_reference: neural_net_perf_trace  
+        topic_name: MiniADAS:ObjectDetection.object_detector:detected_objects
+      - input_reference: brake_perf_trace
+        topic_name: MiniADAS:BrakeControl.emergency_brake_ctrl:brake_commands
+      - input_reference: traffic_sign_perf_trace
+        topic_name: MiniADAS:TrafficSigns.traffic_sign_controller:sign_commands
+    outputs:
+      - output_reference: performance_traces
+        topic_name: MiniADAS:Monitoring.system_perf_monitor:perf_traces
+    execution_params:
+      autostart: true
+      autorestart: true

@@ -1,0 +1,20 @@
+name: BrakeControllerState
+top_level: true
+members:
+  - name: last_brake_command_time
+    member_type: time_point
+  - name: emergency_brake_active
+    member_type: bool
+    default: false
+  - name: current_brake_pressure_bar
+    member_type: float
+    default: 0.0
+  - name: brake_command_counter
+    member_type: uint64_t
+    default: 0
+  - name: closest_object_distance_m
+    member_type: float
+    default: 999.0
+  - name: last_ttc_calculation
+    member_type: float
+    default: 999.0

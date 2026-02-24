@@ -1,0 +1,10 @@
+system_name: "mini_adas"
+
+interfaces:
+  - "interfaces.yaml"
+
+archetypes:
+  - "archetypes.yaml"
+
+instances:
+  - "instances.yaml"

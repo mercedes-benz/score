@@ -1,0 +1,34 @@
+name: TrafficSignParameters
+top_level: true
+members:
+  - name: confidence_threshold
+    member_type: float
+    default: 0.85  # Higher confidence needed for traffic signs
+  - name: max_detection_distance_m
+    member_type: float
+    default: 100.0
+  - name: enable_speed_limit_detection
+    member_type: bool
+    default: true
+  - name: enable_warning_signs
+    member_type: bool
+    default: true
+  - name: enable_regulatory_signs
+    member_type: bool
+    default: true
+  - name: sign_tracking_enabled
+    member_type: bool
+    default: true
+  - name: model_path
+    member_type: string
+    capacity: 256
+    default: "/models/traffic_signs_eu.onnx"
+  - name: max_signs_per_frame
+    member_type: uint8_t
+    default: 8
+  - name: min_sign_size_pixels
+    member_type: uint16_t
+    default: 32  # Minimum 32x32 pixels for reliable detection
+  - name: temporal_smoothing_frames
+    member_type: uint8_t
+    default: 5  # Average over 5 frames for stability

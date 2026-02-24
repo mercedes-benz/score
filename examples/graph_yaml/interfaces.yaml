@@ -1,0 +1,283 @@
+namespace: adas::perception
+
+structs:
+  # Camera sensor data
+  - name: CameraFrame
+    top_level: true
+    members:
+      - name: timestamp
+        type: time_point
+      - name: sequence_id
+        type: uint64_t
+        default: 0
+      - name: width
+        type: uint32_t
+        default: 1920
+      - name: height
+        type: uint32_t
+        default: 1080
+      - name: image_data
+        type: uint8_t[6220800]  # 1920*1080*3 RGB bytes
+      - name: camera_id
+        type: uint8_t
+        default: 0
+      - name: exposure_time_us
+        type: uint32_t
+        default: 33333  # ~30fps
+
+  # Neural network inference results
+  - name: ObjectDetections
+    top_level: true
+    members:
+      - name: timestamp
+        type: time_point
+      - name: source_frame_id
+        type: uint64_t
+      - name: num_objects
+        type: uint16_t
+        default: 0
+      - name: objects
+        type: DetectedObject[32]  # Max 32 objects
+      - name: inference_time_us
+        type: uint32_t
+        default: 0
+      - name: confidence_threshold
+        type: float
+        default: 0.7
+
+  # Individual detected object
+  - name: DetectedObject
+    top_level: false
+    members:
+      - name: object_class
+        type: ObjectClass
+      - name: confidence
+        type: float
+        default: 0.0
+      - name: bounding_box
+        type: BoundingBox
+      - name: distance_m
+        type: float
+        default: 0.0
+      - name: velocity_mps
+        type: float
+        default: 0.0
+
+  # Bounding box coordinates
+  - name: BoundingBox
+    top_level: false
+    members:
+      - name: x_min
+        type: float
+        default: 0.0
+      - name: y_min
+        type: float
+        default: 0.0
+      - name: x_max
+        type: float
+        default: 0.0
+      - name: y_max
+        type: float
+        default: 0.0
+
+  # Brake control commands
+  - name: BrakeCommand
+    top_level: true
+    members:
+      - name: timestamp
+        type: time_point
+      - name: brake_pressure_bar
+        type: float
+        default: 0.0
+        constraints:
+          min: 0.0
+          max: 200.0
+      - name: emergency_brake
+        type: bool
+        default: false
+      - name: target_deceleration_mps2
+        type: float
+        default: 0.0
+      - name: ttc_seconds
+        type: float  # Time to collision
+        default: 999.0
+      - name: command_source
+        type: BrakeSource
+
+  # Traffic sign recognition command
+  - name: TrafficSignCommand
+    top_level: true
+    members:
+      - name: timestamp
+        type: time_point
+      - name: detected_signs
+        type: DetectedTrafficSign[8]  # Max 8 signs in view
+      - name: num_detected_signs
+        type: uint8_t
+        default: 0
+      - name: current_speed_limit_kmh
+        type: uint8_t
+        default: 50  # Default urban speed limit
+      - name: advisory_speed_kmh
+        type: uint8_t
+        default: 0   # 0 = no advisory speed
+      - name: warning_active
+        type: bool
+        default: false
+      - name: processing_time_us
+        type: uint32_t
+        default: 0
+
+  # Individual detected traffic sign
+  - name: DetectedTrafficSign
+    top_level: false
+    members:
+      - name: sign_type
+        type: TrafficSignType
+      - name: confidence
+        type: float
+        default: 0.0
+      - name: bounding_box
+        type: BoundingBox
+      - name: distance_m
+        type: float
+        default: 0.0
+      - name: speed_limit_value
+        type: uint8_t
+        default: 0    # Only valid for speed limit signs
+      - name: sign_id
+        type: uint32_t
+        default: 0    # Unique tracking ID
+
+  # Logging data structure
+  - name: LogEntry
+    top_level: true
+    members:
+      - name: timestamp
+        type: time_point
+      - name: log_level
+        type: LogLevel
+      - name: component_name
+        type: string
+        capacity: 64
+      - name: message
+        type: string
+        capacity: 512
+      - name: thread_id
+        type: uint32_t
+        default: 0
+
+  # Tracing/performance data
+  - name: PerformanceTrace
+    top_level: true
+    members:
+      - name: timestamp
+        type: time_point
+      - name: component_name
+        type: string
+        capacity: 64
+      - name: operation_name
+        type: string
+        capacity: 128
+      - name: duration_us
+        type: uint64_t
+        default: 0
+      - name: cpu_usage_percent
+        type: float
+        default: 0.0
+      - name: memory_usage_mb
+        type: uint32_t
+        default: 0
+      - name: trace_data
+        type: string
+        capacity: 256
+
+enums:
+  - name: ObjectClass
+    base: uint8_t
+    values:
+      - name: kUnknown
+        value: 0
+      - name: kVehicle
+        value: 1
+      - name: kPedestrian
+        value: 2
+      - name: kCyclist
+        value: 3
+      - name: kTrafficSign
+        value: 4
+      - name: kTrafficLight
+        value: 5
+      - name: kObstacle
+        value: 6
+
+  - name: TrafficSignType
+    base: uint8_t
+    values:
+      - name: kUnknownSign
+        value: 0
+      - name: kSpeedLimit30
+        value: 30
+      - name: kSpeedLimit50
+        value: 50
+      - name: kSpeedLimit70
+        value: 70
+      - name: kSpeedLimit90
+        value: 90
+      - name: kSpeedLimit130
+        value: 130
+      - name: kSpeedLimitEnd
+        value: 200
+      - name: kStop
+        value: 201
+      - name: kYield
+        value: 202
+      - name: kNoEntry
+        value: 203
+      - name: kConstruction
+        value: 204
+      - name: kSchoolZone
+        value: 205
+
+  - name: BrakeSource
+    base: uint8_t
+    values:
+      - name: kManual
+        value: 0
+      - name: kAEB  # Autonomous Emergency Braking
+        value: 1
+      - name: kACC  # Adaptive Cruise Control
+        value: 2
+      - name: kCollisionAvoidance
+        value: 3
+
+  - name: LogLevel
+    base: uint8_t
+    values:
+      - name: kDebug
+        value: 0
+      - name: kInfo
+        value: 1
+      - name: kWarning
+        value: 2
+      - name: kError
+        value: 3
+      - name: kFatal
+        value: 4
+
+constexprs:
+  - name: MaxDetectionDistance
+    member_type: float
+    value: 150.0  # meters
+  - name: EmergencyBrakeThreshold
+    member_type: float  
+    value: 2.5    # TTC seconds
+  - name: CameraFrameRate
+    member_type: uint32_t
+    value: 30     # fps
+  - name: MaxTrafficSignDetectionRange
+    member_type: float
+    value: 100.0  # meters
+  - name: TrafficSignConfidenceThreshold
+    member_type: float
+    value: 0.8    # Higher confidence needed for traffic signs

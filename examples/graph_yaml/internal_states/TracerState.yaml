@@ -1,0 +1,21 @@
+name: TracerState
+top_level: true
+members:
+  - name: trace_entries_collected
+    member_type: uint64_t
+    default: 0
+  - name: current_trace_buffer_size
+    member_type: uint32_t
+    default: 0
+  - name: performance_samples_count
+    member_type: uint32_t
+    default: 0
+  - name: last_cpu_usage_percent
+    member_type: float
+    default: 0.0
+  - name: last_memory_usage_mb
+    member_type: uint32_t
+    default: 0
+  - name: trace_buffer_full
+    member_type: bool
+    default: false

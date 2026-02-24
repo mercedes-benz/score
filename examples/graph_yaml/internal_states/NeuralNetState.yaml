@@ -1,0 +1,20 @@
+name: NeuralNetState
+top_level: true
+members:
+  - name: model_loaded
+    member_type: bool
+    default: false
+  - name: inference_counter
+    member_type: uint64_t
+    default: 0
+  - name: total_inference_time_us
+    member_type: uint64_t
+    default: 0
+  - name: last_inference_time_us
+    member_type: uint32_t
+    default: 0
+  - name: gpu_memory_allocated_mb
+    member_type: uint32_t
+    default: 0
+  - name: preprocessing_buffer
+    member_type: float[6220800]  # Normalized input buffer (1920*1080*3)

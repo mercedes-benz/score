@@ -1,0 +1,30 @@
+name: TrafficSignState
+top_level: true
+members:
+  - name: sign_processing_counter
+    member_type: uint64_t
+    default: 0
+  - name: last_detection_timestamp
+    member_type: time_point
+  - name: current_speed_limit_kmh
+    member_type: uint8_t
+    default: 50  # Default urban speed limit
+  - name: active_sign_count
+    member_type: uint8_t
+    default: 0
+  - name: model_loaded
+    member_type: bool
+    default: false
+  - name: total_inference_time_us
+    member_type: uint64_t
+    default: 0
+  - name: last_inference_time_us
+    member_type: uint32_t
+    default: 0
+  - name: missed_frame_count
+    member_type: uint32_t
+    default: 0
+  - name: sign_tracking_buffer
+    member_type: uint32_t[40]  # Track up to 8 signs * 5 frames history
+  - name: confidence_history
+    member_type: float[40]     # Confidence values for temporal smoothing

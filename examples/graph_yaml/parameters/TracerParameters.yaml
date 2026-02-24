@@ -1,0 +1,22 @@
+name: TracerParameters
+top_level: true
+members:
+  - name: sampling_rate_hz
+    member_type: uint32_t
+    default: 100
+  - name: trace_file_path
+    member_type: string
+    capacity: 256
+    default: "/var/log/performance.trace"
+  - name: cpu_monitoring_enabled
+    member_type: bool
+    default: true
+  - name: memory_monitoring_enabled
+    member_type: bool
+    default: true
+  - name: timing_analysis_enabled
+    member_type: bool
+    default: true
+  - name: buffer_size_entries
+    member_type: uint32_t
+    default: 1000

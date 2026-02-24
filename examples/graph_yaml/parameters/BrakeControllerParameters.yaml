@@ -1,0 +1,18 @@
+name: BrakeControllerParameters
+top_level: true
+members:
+  - name: ttc_threshold_seconds
+    member_type: float
+    default: 3.0
+  - name: max_brake_pressure_bar
+    member_type: float
+    default: 200.0
+  - name: emergency_deceleration_mps2
+    member_type: float
+    default: 9.0
+  - name: enable_emergency_braking
+    member_type: bool
+    default: true
+  - name: min_object_distance_m
+    member_type: float
+    default: 2.0

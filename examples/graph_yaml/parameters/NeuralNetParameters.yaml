@@ -1,0 +1,22 @@
+name: NeuralNetParameters
+top_level: true
+members:
+  - name: model_path
+    member_type: string
+    capacity: 256
+    default: "/models/default.onnx"
+  - name: confidence_threshold
+    member_type: float
+    default: 0.7
+  - name: nms_threshold
+    member_type: float
+    default: 0.4
+  - name: max_detections
+    member_type: uint16_t
+    default: 32
+  - name: batch_size
+    member_type: uint8_t
+    default: 1
+  - name: gpu_device_id
+    member_type: int32_t
+    default: 0

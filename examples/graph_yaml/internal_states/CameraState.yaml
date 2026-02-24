@@ -1,0 +1,17 @@
+name: CameraState
+top_level: true
+members:
+  - name: frame_counter
+    member_type: uint64_t
+    default: 0
+  - name: last_frame_timestamp
+    member_type: time_point
+  - name: dropped_frames
+    member_type: uint32_t
+    default: 0
+  - name: current_exposure_us
+    member_type: uint32_t
+    default: 33333
+  - name: is_streaming
+    member_type: bool
+    default: false

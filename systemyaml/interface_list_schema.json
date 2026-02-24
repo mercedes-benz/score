@@ -1,0 +1,216 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/mercedes-benz/score/systemyaml/interface_list_schema.json",
+    "title": "System Definition / Interface Definition Language",
+    "description": "The system definition language is a YAML based language to define messages sent between runnables as well as internal state data structures.",
+    "$defs": {
+        "InterfaceList": {
+            "type": "object",
+            "properties": {
+                "namespace": {
+                    "description": "Namespace all structs, enums and constexprs declared in this file will be part of.",
+                    "$ref": "#/$defs/Namespace"
+                },
+                "structs": {
+                    "description": "List of `InterfaceStructDefinition` YAML objects, each describing one interface struct. In C++ these will be generated as `class`.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/InterfaceStructDefinition"
+                    }
+                },
+                "enums": {
+                    "description": "List of `EnumDefinition` YAML objects, each describing one enum. In C++ these will be generated as `enum class`.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/EnumDefinition"
+                    }
+                },
+                "constexprs": {
+                    "description": "List of `StructMemberDefinition` YAML objects, each describing once constexpr. These constexprs will be generated on namespace scope in C++.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/StructMemberDefinition"
+                    }
+                }
+            },
+            "required": [
+                "namespace"
+            ]
+        },
+        "InterfaceStructDefinition": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Used to uniquely identify the data type both in all YAML files fed to the code generator and to generate unique type names for generated code.",
+                    "type": "string"
+                },
+                "top_level": {
+                    "description": "Indicates whether or not the described data structure is a message type level or sub-component level data structure. Top level data structures can be created using other data structures modeled in YAML, that generally would not be message types themselves, i.e. not top-level.",
+                    "type": "boolean"
+                },
+                "members": {
+                    "description": "List of `StructMemberDefinition` YAML objects. If no members are modeled, an empty named data structure will be produced.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/StructMemberDefinition"
+                    }
+                },
+                "header_files": {
+                    "description": "Allows to provide 3rd party header inclusion paths to the code generator in case your types include 3rd party library types.  It is advised to minimize use of types from 3rd party libraries though as this will prevent auto-generation of gateways, which is planned for future releases, from working out of the box. It also introduces risk of mistakes by means of introducing types that depend on pointers to random memory locations, which will not work between processes.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "top_level",
+                "members"
+            ]
+        },
+        "StructMemberDefinition": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Equivalent to the name of a struct member (field).",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Type of the member variable. This is currently a free-form field that gets directly used by the code generator as a C++ type name. YAML-modeled data types that are defined in other Interface List files need to be referenced with their fully qualified namespace; types defined in the same file can be defined without the namespace qualification. This field can also be used to reference arbitrary types (e.g. from external libraries), but assignment operations and other code cannot be generated for them. If a data type not defined in YAML is referenced here, the code generator will issue warning but not consider it a hard error.",
+                    "type": "string"
+                },
+                "default": {
+                    "description": "Is used for default-initialization of the member as part of the generated code type declaration. Default: language specific",
+                    "$ref": "#/$defs/StringRepresentedValue"
+                },
+                "constraints": {
+                    "description": "Not currently used. Optional.",
+                    "$ref": "#/$defs/StructMemberValueConstraint"
+                },
+                "constexpr": {
+                    "description": "For standalone `constexprs` the default is true, for others the default is false. When it is true, the member will be defined as `constexpr` with the value specified in the `value` field.",
+                    "type": "boolean"
+                },
+                "value": {
+                    "description": "If this is a `constexpr`, the value it should have. Ignored otherwise.",
+                    "$ref": "#/$defs/StringRepresentedValue"
+                },
+                "capacity": {
+                    "description": "Capacity of a fixes size container (e. g. a string or a vector).",
+                    "type": "number",
+                    "type_description": "32-bit signed integer"
+                }
+            },
+            "required": [
+                "name",
+                "type"
+            ]
+        },
+        "StructMemberValueConstraint": {
+            "type": "object",
+            "properties": {
+                "min": {
+                    "$ref": "#/$defs/StringRepresentedValue"
+                },
+                "max": {
+                    "$ref": "#/$defs/StringRepresentedValue"
+                }
+            },
+            "required": [
+                "min",
+                "max"
+            ]
+        },
+        "StringRepresentedValue": {
+            "anyOf": [
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": [
+                        "number",
+                        "boolean",
+                        "string",
+                        "array",
+                        "null"
+                    ]
+                }
+            ]
+        },
+        "Namespace": {
+            "type": "string"
+        },
+        "EnumDefinition": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Name of the enum, used to uniquely identify the data type both in all YAML files fed to the code generator and to generate unique type names for generated code.",
+                    "type": "string"
+                },
+                "base": {
+                    "description": "Allows to specify the enum class base type in C++. Default: compiler specific",
+                    "type": "string"
+                },
+                "values": {
+                    "description": "A YAML list of `EnumEntry` objects.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/EnumEntry"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "values"
+            ]
+        },
+        "EnumEntry": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "The name of the enum entry (e. g. `kMyEnumEntry`).",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "A specific value associated with the enum entry.",
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "number",
+                            "type_description": "32-bit signed integer"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "name"
+            ]
+        }
+    },
+    "$ref": "#/$defs/InterfaceList"
+}

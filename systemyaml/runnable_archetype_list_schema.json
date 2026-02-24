@@ -1,0 +1,190 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/mercedes-benz/score/systemyaml/runnable_archetype_list_schema.json",
+    "title": "System Definition / Runnable Archetype List",
+    "description": "The runnable archetype lists declares the different runnable types (usually one algorithm).",
+    "$defs": {
+        "RunnableArchetypeList": {
+            "type": "object",
+            "properties": {
+                "namespace": {
+                    "description": "Namespace all runnables defined in this YAML file should be part of. The notation is C++ style, e. g. `my::namespace`.",
+                    "$ref": "#/$defs/Namespace"
+                },
+                "runnables": {
+                    "description": "List of `RunnableArchetypeDescription` defining Runnable Archetypes.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/RunnableArchetypeDescription"
+                    }
+                }
+            },
+            "required": [
+                "namespace",
+                "runnables"
+            ]
+        },
+        "Namespace": {
+            "type": "string"
+        },
+        "RunnableArchetypeDescription": {
+            "type": "object",
+            "properties": {
+                "unique_name": {
+                    "description": "A unique shorthand or name for the specific Runnable implementation-in-code. NOTE: Must be PascalCased!",
+                    "type": "string"
+                },
+                "namespace": {
+                    "description": "**DEPRECATED** Use the global `namespace` field instead. Used to impact the directory tree for generated runnable skeletons.",
+                    "$ref": "#/$defs/Namespace"
+                },
+                "runnabletype": {
+                    "description": "Currently compulsory but not actually used. Intended to describe the compute unit used by the runnable, e. g. `CPU` or `GPU`.",
+                    "type": "string"
+                },
+                "wcet_us": {
+                    "description": "Indicates the Worst-Case Execution Time for the Runnable's `onUpdate()` function. Fabric will generate warnings if a runnable exceeds this time. In future runnable's exceeding this time may be restarted automatically. Unit: microseconds",
+                    "type": "number",
+                    "type_description": "64-bit signed integer"
+                },
+                "min_interval_us": {
+                    "description": "Limits how often a Runnable's `onUpdate()` function gets triggered, even if all other conditions were met. Default: no minimum interval. Unit: microseconds",
+                    "type": "number",
+                    "type_description": "64-bit signed integer"
+                },
+                "max_interval_us": {
+                    "description": "Used to force a Runnable's `onUpdate()` functon to get triggered at least this often. Default: never. Unit: microseconds",
+                    "type": "number",
+                    "type_description": "64-bit signed integer"
+                },
+                "parameter_header": {
+                    "description": "Path relative to the YAML directory root, to a data structure description YAML file describing the Runnable's constant runtime parameters, such as calibration settings or which sensor device to use. Default: no parameters",
+                    "type": "string"
+                },
+                "internal_state_header": {
+                    "description": "Path relative to the YAML directory root, to a data structure description YAML file describing a container data structure for internal state variables and data structures necessary for reproducibility in input-output determinism for stateful algorithms. Default: no internal state",
+                    "type": "string"
+                },
+                "inputs": {
+                    "description": "List of input data interfaces expected by a Runnable Archetype implementation in the form of `RunnableInputDescription`s.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/RunnableInputDescription"
+                    }
+                },
+                "outputs": {
+                    "description": "List of output data interfaces expected by a Runnable Archetype implementation in the form of `RunnableOutputDescription`s.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/RunnableOutputDescription"
+                    }
+                },
+                "build_information": {
+                    "description": "The fully qualified absolute Bazel target label of the Runnable Archetype implementation (library) in the Bazel workspace. This is used for auto-generating the project Bazel BUILD files.",
+                    "$ref": "#/$defs/BuildInformation"
+                }
+            },
+            "required": [
+                "unique_name",
+                "runnabletype",
+                "wcet_us",
+                "build_information"
+            ]
+        },
+        "RunnableInputDescription": {
+            "type": "object",
+            "properties": {
+                "unique_name": {
+                    "description": "A unique (for a Runnable Archetype) identifier for the modeled input interface. This also acts as the locally accessible name of the interface in the Runnable's in-code implementation.",
+                    "type": "string"
+                },
+                "type_name": {
+                    "description": "Message type (see `InterfaceStructDefinition`) to be used for this input interface. This type name has to be identical to the type of the corresponding output that's connected to this input in the instance definition.",
+                    "type": "string"
+                },
+                "n_samples_max": {
+                    "description": "Maximum number of input samples that should be queued for this input. All of the queued samples are made available to one iteration of the runnable's `onUpdate()`. This is typically useful if not all inputs arrive at the same frequency.",
+                    "type": "number",
+                    "type_description": "16-bit unsigned integer"
+                },
+                "n_samples_min": {
+                    "description": "Minimum number of inputs samples that should be queued for this input before the runnable's `onUpdate()` is triggered (unless `max_interval_us` is reached). A value of zero means this input is not taken into consideration when deciding if the runnable is ready to be triggered. Default: 0",
+                    "type": "number",
+                    "type_description": "16-bit unsigned integer"
+                },
+                "policy": {
+                    "description": "Either `kLastN` or `kNewestN`. `kLastN` causes the input queue for this input to be flushed when the runnable's `onUpdate()` is triggered. `kNewestN` retains the newest `n_samples_max` samples in the input queue over multiple triggers of the runnable. **IMPORTANT:** `kNewestN` in combination with `n_samples_min` can cause the runnable to be triggered constantly. It can be useful in combination with other inputs which also define `n_samples_min` though. Default: `kLastN`",
+                    "$ref": "#/$defs/BatchPolicy"
+                }
+            },
+            "required": [
+                "unique_name",
+                "type_name",
+                "n_samples_max"
+            ]
+        },
+        "BatchPolicy": {
+            "type": "string",
+            "enum": [
+                "LastN",
+                "kLastN",
+                "NewestN",
+                "kNewestN"
+            ]
+        },
+        "RunnableOutputDescription": {
+            "type": "object",
+            "properties": {
+                "unique_name": {
+                    "description": "Unique (for a Runnable Archetype) identifier for the modeled output interface. This also acts as the locally accessible name fo the interface in the Runnable code.",
+                    "type": "string"
+                },
+                "type_name": {
+                    "description": "Message type (see InterfaceStructDefinition) to be used for this output interface.",
+                    "type": "string"
+                },
+                "n_samples_max": {
+                    "description": "Maximum number of outputs via this interface that the Runnable implementation will produce in one `onUpdate()` cycle.",
+                    "type": "number",
+                    "type_description": "16-bit unsigned integer"
+                },
+                "n_slots": {
+                    "description": "Number of in-memory slots used for the single-writer-multiple-reader zero-copy interface. For complex systems, this number requires some calculation, but for a single-writer-single-reader use-case this can safely be set to 2. Default: auto-calculated",
+                    "type": "number",
+                    "type_description": "16-bit unsigned integer"
+                },
+                "memory_backend": {
+                    "description": "Defines the memory backend used for sample distribution, either `kPosixShm` or `kPcieShm`. Default: `kPosixShm`",
+                    "$ref": "#/$defs/MemoryBackend"
+                }
+            },
+            "required": [
+                "unique_name",
+                "type_name",
+                "n_samples_max"
+            ]
+        },
+        "MemoryBackend": {
+            "type": "string",
+            "enum": [
+                "PosixShm",
+                "kPosixShm",
+                "PcieShm",
+                "kPcieShm"
+            ]
+        },
+        "BuildInformation": {
+            "type": "object",
+            "properties": {
+                "bazel_target": {
+                    "description": "Bazel label of the library target implementing the runnable.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "bazel_target"
+            ]
+        }
+    },
+    "$ref": "#/$defs/RunnableArchetypeList"
+}

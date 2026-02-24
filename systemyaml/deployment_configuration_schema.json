@@ -1,0 +1,79 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/mercedes-benz/score/systemyaml/deployment_configuration_schema.json",
+    "title": "System Definition / Deployment Configuration",
+    "description": "The deployment configuration specifies which CPU core and with which priority a runnable instance should run. It is optional.",
+    "$defs": {
+        "DeploymentConfigurationList": {
+            "type": "object",
+            "properties": {
+                "deployment_configuration": {
+                    "description": "List of `DeploymentConfigurationConfig`s. Runnable Instances for which no deployment configuration is provided will run with the operating system defaults.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/DeploymentConfigurationConfig"
+                    }
+                }
+            },
+            "required": [
+                "deployment_configuration"
+            ]
+        },
+        "DeploymentConfigurationConfig": {
+            "type": "object",
+            "properties": {
+                "instance_unique_name": {
+                    "description": "The unique_name used for any generated Runnable Instance or bridge this configuration is for.",
+                    "type": "string"
+                },
+                "cpu_affinities": {
+                    "description": "Array of (zero-based) indices of CPU cores available to the referred Runnable Instance in the range `[0, <max_num_cores>-1]`.",
+                    "type": "array",
+                    "items": {
+                        "type": "number",
+                        "type_description": "16-bit unsigned integer"
+                    }
+                },
+                "process_scheduling": {
+                    "description": "Realtime scheduling parameters to be set for the referred Runnable Instance. NOTE: The execution manager may need elevated permissions to be able to apply those parameters.",
+                    "$ref": "#/$defs/DeploymentConfigurationProcessSchedulingConfig"
+                }
+            },
+            "required": [
+                "instance_unique_name",
+                "cpu_affinities",
+                "process_scheduling"
+            ]
+        },
+        "DeploymentConfigurationProcessSchedulingConfig": {
+            "type": "object",
+            "properties": {
+                "scheduling_policy": {
+                    "description": "Scheduling policy the operating system scheduler shall use. One of: `kOther` (translates to SCHED_OTHER), `kFifo` (translates to SCHED_FIFO) or `kRoundRobin` (translates to SCHED_RR). Default: `kOther`",
+                    "$ref": "#/$defs/SchedulingPolicy"
+                },
+                "scheduling_priority": {
+                    "description": "Scheduling priority the operating system scheduler shall apply. Values ranges are OS specific.",
+                    "type": "number",
+                    "type_description": "16-bit signed integer"
+                }
+            },
+            "required": [
+                "scheduling_policy",
+                "scheduling_priority"
+            ]
+        },
+        "SchedulingPolicy": {
+            "type": "string",
+            "enum": [
+                "kOther",
+                "SCHED_OTHER",
+                "kFifo",
+                "SCHED_FIFO",
+                "kRoundRobin",
+                "SCHED_RR"
+            ]
+        }
+    },
+    "$ref": "#/$defs/DeploymentConfigurationList"
+}

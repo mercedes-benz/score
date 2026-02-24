@@ -1,0 +1,25 @@
+name: LoggerParameters
+top_level: true
+members:
+  - name: log_level
+    member_type: uint8_t  # LogLevel enum
+    default: 1
+  - name: log_file_path
+    member_type: string
+    capacity: 256
+    default: "/var/log/adas.log"
+  - name: max_file_size_mb
+    member_type: uint32_t
+    default: 100
+  - name: enable_camera_logging
+    member_type: bool
+    default: true
+  - name: enable_detection_logging
+    member_type: bool
+    default: true
+  - name: enable_brake_logging
+    member_type: bool
+    default: true
+  - name: enable_traffic_sign_logging
+    member_type: bool
+    default: true

@@ -1,0 +1,17 @@
+name: LoggerState
+top_level: true
+members:
+  - name: log_entries_written
+    member_type: uint64_t
+    default: 0
+  - name: current_log_file_size_mb
+    member_type: uint32_t
+    default: 0
+  - name: log_buffer_count
+    member_type: uint16_t
+    default: 0
+  - name: dropped_log_entries
+    member_type: uint32_t
+    default: 0
+  - name: last_flush_timestamp
+    member_type: time_point
