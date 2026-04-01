@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InstanceList",
+  "description": "A list of runnable instances within a namespace.",
+  "type": "object",
+  "required": [
+    "instances",
+    "namespace"
+  ],
+  "properties": {
+    "instances": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Instance"
+      }
+    },
+    "namespace": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "ExecutionParams": {
+      "description": "Execution parameters for an instance.",
+      "type": "object",
+      "properties": {
+        "autorestart": {
+          "default": false,
+          "type": "boolean"
+        },
+        "autostart": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "InputBinding": {
+      "description": "An input binding for an instance.",
+      "type": "object",
+      "required": [
+        "input_reference",
+        "topic_name"
+      ],
+      "properties": {
+        "input_reference": {
+          "type": "string"
+        },
+        "topic_name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Instance": {
+      "description": "A single runnable instance.",
+      "type": "object",
+      "required": [
+        "archetype_reference",
+        "unique_name"
+      ],
+      "properties": {
+        "archetype_reference": {
+          "type": "string"
+        },
+        "execution_params": {
+          "$ref": "#/definitions/ExecutionParams"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InputBinding"
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OutputBinding"
+          }
+        },
+        "parameter_overrides": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ParameterOverride"
+          }
+        },
+        "unique_name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "OutputBinding": {
+      "description": "An output binding for an instance.",
+      "type": "object",
+      "required": [
+        "output_reference",
+        "topic_name"
+      ],
+      "properties": {
+        "output_reference": {
+          "type": "string"
+        },
+        "topic_name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ParameterOverride": {
+      "description": "A parameter override for an instance.",
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": true
+      },
+      "additionalProperties": false
+    }
+  }
+}

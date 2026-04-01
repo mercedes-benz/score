@@ -1,0 +1,56 @@
+#pragma once
+
+#ifndef {{ guard }}
+#define {{ guard }}
+
+#include "score/base/error.hpp"
+{% if has_inputs or has_outputs %}
+#include <deque>
+#include <utility>
+{% for inc in io_includes %}
+#include "{{ inc }}"
+{% endfor %}
+{% endif %}
+{% if has_parameters %}
+
+struct {{ parameters_struct_name }};
+{% endif %}
+{% if has_internal_state %}
+
+struct {{ internal_state_struct_name }};
+{% endif %}
+
+namespace {{ namespace }} {
+namespace {{ snake_name }} {
+{% if has_inputs %}
+
+/// Input queues for {{ class_name }}.
+struct Inputs {
+{% for input in inputs %}
+    static constexpr std::size_t {{ input.variable_name }}_capacity = {{ input.capacity }};
+    std::deque<const {{ input.type_name }}*> {{ input.variable_name }}{{"{"}}{{ input.variable_name }}_capacity, nullptr{{"}"}};
+{% endfor %}
+};
+{% endif %}
+{% if has_outputs %}
+
+/// Output queues for {{ class_name }}.
+struct Outputs {
+{% for output in outputs %}
+    static constexpr std::size_t {{ output.variable_name }}_capacity = {{ output.capacity }};
+    static constexpr std::size_t {{ output.variable_name }}_n_slots = {{ output.n_slots }};
+    std::deque<std::pair<{{ output.type_name }}*, std::size_t>> {{ output.variable_name }}{{"{"}}{{ output.variable_name }}_capacity, {{"{"}}nullptr, {{ output.variable_name }}_n_slots{{"}"}}{{"}"}};
+{% endfor %}
+};
+{% endif %}
+
+/// Called once during initialization.
+score::base::ErrorCode on_init({% if has_parameters %}const {{ parameters_struct_name }}& parameters{% endif %}{% if has_parameters and has_internal_state %}, {% endif %}{% if has_internal_state %}{{ internal_state_struct_name }}& state{% endif %});
+
+/// Called on each update cycle.
+score::base::ErrorCode on_update({% if has_parameters %}const {{ parameters_struct_name }}& parameters{% endif %}{% if has_parameters and has_inputs %}, {% endif %}{% if has_inputs %}const Inputs& inputs{% endif %}{% if (has_parameters or has_inputs) and has_outputs %}, {% endif %}{% if has_outputs %}Outputs& outputs{% endif %}{% if (has_parameters or has_inputs or has_outputs) and has_internal_state %}, {% endif %}{% if has_internal_state %}{{ internal_state_struct_name }}& state{% endif %});
+
+} // namespace {{ snake_name }}
+} // namespace {{ namespace }}
+
+#endif // {{ guard }}

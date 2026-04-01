@@ -1,0 +1,18 @@
+#pragma once
+
+#ifndef {{ guard }}
+#define {{ guard }}
+
+#include <cstdint>
+
+namespace {{ namespace }} {
+
+enum class {{ enum_name }} : {{ base_type }} {
+{%- for v in values %}
+    {{ v.name }}{% if v.value is not none %} = {{ v.value }}{% endif %},
+{%- endfor %}
+};
+
+} // namespace {{ namespace }}
+
+#endif // {{ guard }}

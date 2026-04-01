@@ -1,0 +1,12 @@
+{% for task in tasks %}
+cc_binary(
+    name = "{{ task.task_name }}",
+    srcs = [
+        "src/{{ task.task_name }}.cpp",
+    ],
+    deps = [
+        "{{ task.runnable_lib_label }}",
+    ],
+    visibility = ["//visibility:public"],
+)
+{% endfor %}

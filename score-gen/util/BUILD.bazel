@@ -1,0 +1,16 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+rust_library(
+    name = "util",
+    srcs = glob(["src/**/*.rs"]),
+    deps = [
+        "//frontend",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+rust_test(
+    name = "util_test",
+    crate = ":util",
+    size = "small",
+)

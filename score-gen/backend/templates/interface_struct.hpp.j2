@@ -1,0 +1,22 @@
+#pragma once
+
+#ifndef {{ guard }}
+#define {{ guard }}
+{% for inc in system_includes %}
+#include {{ inc }}
+{%- endfor %}
+{% for inc in local_includes %}
+#include {{ inc }}
+{%- endfor %}
+
+namespace {{ namespace }} {
+
+struct {{ struct_name }} {
+{%- for member in members %}
+    {{ member.member_type }} {{ member.name }}{% if member.default_value %}{{"{"}}{{ member.default_value }}{{"}"}}{% endif %};
+{%- endfor %}
+};
+
+} // namespace {{ namespace }}
+
+#endif // {{ guard }}

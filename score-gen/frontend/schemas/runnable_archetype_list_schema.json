@@ -1,0 +1,209 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RunnableArchetypeList",
+  "description": "A collection of runnable archetypes within a namespace",
+  "type": "object",
+  "required": [
+    "namespace",
+    "runnables"
+  ],
+  "properties": {
+    "namespace": {
+      "$ref": "#/definitions/Namespace"
+    },
+    "runnables": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/RunnableArchetypeDescription"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "BatchPolicy": {
+      "description": "Batch processing policy for input samples",
+      "oneOf": [
+        {
+          "description": "Flush the input queue on every `onUpdate()` trigger",
+          "type": "string",
+          "enum": [
+            "LastN"
+          ]
+        },
+        {
+          "description": "Retain the newest N samples across triggers",
+          "type": "string",
+          "enum": [
+            "NewestN"
+          ]
+        }
+      ]
+    },
+    "BuildInformation": {
+      "description": "Build information for a runnable archetype",
+      "type": "object",
+      "required": [
+        "bazel_target"
+      ],
+      "properties": {
+        "bazel_target": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "MemoryBackend": {
+      "description": "Memory backend for zero-copy communication",
+      "oneOf": [
+        {
+          "description": "POSIX shared memory",
+          "type": "string",
+          "enum": [
+            "PosixShm"
+          ]
+        }
+      ]
+    },
+    "Namespace": {
+      "type": "string"
+    },
+    "RunnableArchetypeDescription": {
+      "description": "A runnable archetype description",
+      "type": "object",
+      "required": [
+        "build_information",
+        "runnabletype",
+        "unique_name"
+      ],
+      "properties": {
+        "build_information": {
+          "$ref": "#/definitions/BuildInformation"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RunnableInputDescription"
+          }
+        },
+        "internal_state_header": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "max_interval_us": {
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "min_interval_us": {
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RunnableOutputDescription"
+          }
+        },
+        "parameter_header": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "runnabletype": {
+          "type": "string"
+        },
+        "unique_name": {
+          "type": "string"
+        },
+        "wcet_us": {
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RunnableInputDescription": {
+      "description": "Description of a runnable's input interface",
+      "type": "object",
+      "required": [
+        "n_samples_max",
+        "type_name",
+        "unique_name"
+      ],
+      "properties": {
+        "n_samples_max": {
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "n_samples_min": {
+          "default": 0,
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "policy": {
+          "$ref": "#/definitions/BatchPolicy"
+        },
+        "type_name": {
+          "type": "string"
+        },
+        "unique_name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RunnableOutputDescription": {
+      "description": "Description of a runnable's output interface",
+      "type": "object",
+      "required": [
+        "n_samples_max",
+        "type_name",
+        "unique_name"
+      ],
+      "properties": {
+        "memory_backend": {
+          "$ref": "#/definitions/MemoryBackend"
+        },
+        "n_samples_max": {
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "n_slots": {
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "type_name": {
+          "type": "string"
+        },
+        "unique_name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

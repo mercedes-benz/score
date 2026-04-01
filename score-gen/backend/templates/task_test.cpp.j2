@@ -1,0 +1,41 @@
+{% if has_parameters %}
+#include "{{ snake_name }}_parameter.hpp"
+{% endif %}
+{% if has_internal_state %}
+#include "{{ snake_name }}_internal_state.hpp"
+{% endif %}
+#include "{{ snake_name }}.hpp"
+
+#include <gtest/gtest.h>
+
+/// @brief Test fixture for {{ class_name }} runnable.
+///
+/// Verifies that on_init() and on_update() return Success
+/// when called with default-initialized parameters and internal state.
+class {{ class_name }}Test : public ::testing::Test {
+protected:
+{% if has_parameters %}
+    const {{ parameters_struct_name }} params_{};
+{% endif %}
+{% if has_internal_state %}
+    {{ internal_state_struct_name }} state_{};
+{% endif %}
+{% if has_inputs %}
+    const {{ namespace }}::{{ snake_name }}::Inputs inputs_{};
+{% endif %}
+{% if has_outputs %}
+    {{ namespace }}::{{ snake_name }}::Outputs outputs_{};
+{% endif %}
+};
+
+/// @brief Verify that on_init returns Success with default values.
+TEST_F({{ class_name }}Test, OnInitReturnsSuccess) {
+    auto rc = {{ namespace }}::{{ snake_name }}::on_init({% if has_parameters %}params_{% endif %}{% if has_parameters and has_internal_state %}, {% endif %}{% if has_internal_state %}state_{% endif %});
+    EXPECT_EQ(rc, score::base::ErrorCode::Success());
+}
+
+/// @brief Verify that on_update returns Success with default values.
+TEST_F({{ class_name }}Test, OnUpdateReturnsSuccess) {
+    auto rc = {{ namespace }}::{{ snake_name }}::on_update({% if has_parameters %}params_{% endif %}{% if has_parameters and has_inputs %}, {% endif %}{% if has_inputs %}inputs_{% endif %}{% if (has_parameters or has_inputs) and has_outputs %}, {% endif %}{% if has_outputs %}outputs_{% endif %}{% if (has_parameters or has_inputs or has_outputs) and has_internal_state %}, {% endif %}{% if has_internal_state %}state_{% endif %});
+    EXPECT_EQ(rc, score::base::ErrorCode::Success());
+}

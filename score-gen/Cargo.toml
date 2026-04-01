@@ -1,0 +1,13 @@
+[workspace]
+members = [".", "frontend", "util", "backend"]
+
+[package]
+name = "score-gen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+frontend = { path = "frontend" }
+util = { path = "util" }
+backend = { path = "backend" }
+anyhow = "1.0"

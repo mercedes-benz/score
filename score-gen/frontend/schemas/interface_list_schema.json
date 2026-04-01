@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InterfaceList",
+  "description": "Top-level interface list parsed from an `interfaces.yaml` file.\n\nContains struct definitions, enum definitions, and constexpr values, all scoped under a C++ namespace.",
+  "type": "object",
+  "required": [
+    "namespace"
+  ],
+  "properties": {
+    "constexprs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ConstexprDefinition"
+      }
+    },
+    "enums": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EnumDefinition"
+      }
+    },
+    "namespace": {
+      "type": "string"
+    },
+    "structs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/InterfaceStructDefinition"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "ConstexprDefinition": {
+      "description": "A constexpr value definition.",
+      "type": "object",
+      "required": [
+        "member_type",
+        "name",
+        "value"
+      ],
+      "properties": {
+        "member_type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "value": true
+      },
+      "additionalProperties": false
+    },
+    "EnumDefinition": {
+      "description": "An enum definition with a base type and named values.",
+      "type": "object",
+      "required": [
+        "base",
+        "name",
+        "values"
+      ],
+      "properties": {
+        "base": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EnumEntry"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "EnumEntry": {
+      "description": "A single enum value entry.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        }
+      },
+      "additionalProperties": false
+    },
+    "InterfaceStructDefinition": {
+      "description": "A struct (type) definition within the interface list.",
+      "type": "object",
+      "required": [
+        "members",
+        "name"
+      ],
+      "properties": {
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StructMemberDefinition"
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "top_level": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "MemberConstraints": {
+      "description": "A constraint on a numeric struct member (min/max bounds).",
+      "type": "object",
+      "properties": {
+        "max": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "min": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        }
+      },
+      "additionalProperties": false
+    },
+    "StructMemberDefinition": {
+      "description": "A single member (field) within a struct definition.",
+      "type": "object",
+      "required": [
+        "member_type",
+        "name"
+      ],
+      "properties": {
+        "capacity": {
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "constraints": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/MemberConstraints"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "default": {
+          "default": null
+        },
+        "member_type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

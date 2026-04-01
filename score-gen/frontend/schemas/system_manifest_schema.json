@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SystemManifest",
+  "description": "The system manifest that ties together all YAML graph definition files.",
+  "type": "object",
+  "required": [
+    "system_name"
+  ],
+  "properties": {
+    "archetypes": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "instances": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "interfaces": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "system_name": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+workspace(name = "test-example")
+
+load("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
+
+local_repository(
+    name = "score-gen",
+    path = "../../score-gen",
+)
+
+# Load score-gen's dependencies
+load("@score-gen//third_party:deps.bzl", "scoregen_dependencies")
+
+scoregen_dependencies()
+
+load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
+
+rules_rust_dependencies()
+
+rust_register_toolchains(
+    edition = "2021",
+    versions = ["1.77.2"],
+)
+
+load("@rules_rust//crate_universe:defs.bzl", "crates_repository")
+
+crates_repository(
+    name = "crate_index",
+    cargo_lockfile = "@score-gen//:Cargo.lock",
+    manifests = [
+        "@score-gen//:Cargo.toml",
+        "@score-gen//frontend:Cargo.toml",
+        "@score-gen//util:Cargo.toml",
+        "@score-gen//backend:Cargo.toml",
+    ],
+)
+
+load("@crate_index//:defs.bzl", "crate_repositories")
+
+crate_repositories()
+

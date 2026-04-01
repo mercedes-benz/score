@@ -1,0 +1,11 @@
+system_name: "test-example"
+
+interfaces:
+  - "interfaces.yaml"
+
+archetypes:
+  - "archetypes.yaml"
+
+instances:
+  - "instances.yaml"
+

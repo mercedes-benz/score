@@ -1,0 +1,15 @@
+#pragma once
+
+#ifndef {{ guard }}
+#define {{ guard }}
+
+#include <cstdint>
+#include <string>
+
+struct {{ struct_name }} {
+{% for member in members %}
+    {{ member.member_type }} {{ member.name }}{% if member.default_value %}{{"{"}}{{ member.default_value }}{{"}"}}{% endif %};
+{% endfor %}
+};
+
+#endif // {{ guard }}

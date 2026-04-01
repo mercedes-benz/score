@@ -1,0 +1,14 @@
+#pragma once
+
+#ifndef {{ guard }}
+#define {{ guard }}
+{% if needs_cstdint %}
+#include <cstdint>
+{% endif %}
+namespace {{ namespace }} {
+
+constexpr {{ member_type }} {{ name }} = {{ value }};
+
+} // namespace {{ namespace }}
+
+#endif // {{ guard }}

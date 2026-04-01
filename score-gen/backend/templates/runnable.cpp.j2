@@ -1,0 +1,17 @@
+#include "{{ snake_name }}.hpp"
+
+namespace {{ namespace }} {
+namespace {{ snake_name }} {
+
+score::base::ErrorCode on_init({% if has_parameters %}const {{ parameters_struct_name }}& parameters{% endif %}{% if has_parameters and has_internal_state %}, {% endif %}{% if has_internal_state %}{{ internal_state_struct_name }}& state{% endif %}) {
+    // TODO: Implement initialization logic
+    return score::base::ErrorCode::Success();
+}
+
+score::base::ErrorCode on_update({% if has_parameters %}const {{ parameters_struct_name }}& parameters{% endif %}{% if has_parameters and has_inputs %}, {% endif %}{% if has_inputs %}const Inputs& inputs{% endif %}{% if (has_parameters or has_inputs) and has_outputs %}, {% endif %}{% if has_outputs %}Outputs& outputs{% endif %}{% if (has_parameters or has_inputs or has_outputs) and has_internal_state %}, {% endif %}{% if has_internal_state %}{{ internal_state_struct_name }}& state{% endif %}) {
+    // TODO: Implement update logic
+    return score::base::ErrorCode::Success();
+}
+
+} // namespace {{ snake_name }}
+} // namespace {{ namespace }}

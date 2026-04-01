@@ -1,0 +1,32 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
+
+rust_library(
+    name = "frontend",
+    srcs = glob(["src/**/*.rs"], exclude = ["src/bin/**"]),
+    edition = "2021",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@crate_index//:anyhow",
+        "@crate_index//:schemars",
+        "@crate_index//:serde",
+        "@crate_index//:serde_json",
+        "@crate_index//:serde_yaml",
+    ],
+)
+
+rust_binary(
+    name = "generate_schemas",
+    srcs = ["src/bin/generate_schemas.rs"],
+    edition = "2021",
+    deps = [
+        ":frontend",
+        "@crate_index//:schemars",
+        "@crate_index//:serde_json",
+    ],
+)
+
+rust_test(
+    name = "frontend_test",
+    crate = ":frontend",
+    data = glob(["testdata/**"]),
+)

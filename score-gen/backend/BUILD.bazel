@@ -1,0 +1,21 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+rust_library(
+    name = "backend",
+    srcs = glob(["src/**/*.rs"]),
+    compile_data = glob(["templates/**"]),
+    edition = "2021",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//frontend",
+        "@crate_index//:anyhow",
+        "@crate_index//:minijinja",
+        "@crate_index//:serde",
+        "@crate_index//:serde_yaml",
+    ],
+)
+
+rust_test(
+    name = "backend_test",
+    crate = ":backend",
+)

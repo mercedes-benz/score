@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InternalStateDefinition",
+  "description": "An internal state definition for a runnable archetype.\n\nEach internal state file defines a single struct with typed members and optional default values, representing the private runtime state of a specific runnable.",
+  "type": "object",
+  "required": [
+    "members",
+    "name"
+  ],
+  "properties": {
+    "members": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/StructMemberDefinition"
+      }
+    },
+    "name": {
+      "type": "string"
+    },
+    "top_level": {
+      "default": false,
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "MemberConstraints": {
+      "description": "A constraint on a numeric struct member (min/max bounds).",
+      "type": "object",
+      "properties": {
+        "max": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "min": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        }
+      },
+      "additionalProperties": false
+    },
+    "StructMemberDefinition": {
+      "description": "A single member (field) within a struct definition.",
+      "type": "object",
+      "required": [
+        "member_type",
+        "name"
+      ],
+      "properties": {
+        "capacity": {
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "constraints": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/MemberConstraints"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "default": {
+          "default": null
+        },
+        "member_type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
